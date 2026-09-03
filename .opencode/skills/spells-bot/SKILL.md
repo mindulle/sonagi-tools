@@ -35,3 +35,12 @@ export const commandName: Command = {
   },
 };
 ```
+
+## 5. 지식 위키 조회 규칙 (Knowledge Wiki Lookup)
+
+인프라 구성, 봇 명세, 또는 팀 내 표준 절차에 대한 맥락이 필요할 때 **반드시** 위키를 먼저 조회하십시오.
+
+```bash
+# ripgrep(rg)을 사용한 개발/인프라 개념 검색 (대소문자 무시)
+rg -i "<검색할 개념>" /home/ubuntu/llm-wiki/20_Wiki/Develop/ /home/ubuntu/llm-wiki/20_Wiki/_concepts/
+```
