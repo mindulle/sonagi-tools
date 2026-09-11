@@ -95,6 +95,18 @@ export const playCommand: Command = {
     )
     .addSubcommand((subcommand) =>
       subcommand
+        .setName('project')
+        .setDescription('프로젝트 경로를 받아 Sandbox API를 호출하고 Preview URL을 제공합니다.')
+        .addStringOption((option) =>
+          option
+            .setName('path')
+            .setDescription('실행할 프로젝트 경로 (자동완성 지원)')
+            .setRequired(true)
+            .setAutocomplete(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
         .setName('run')
         .setDescription('코드를 즉시 실행하고 콘솔 결과를 확인합니다 (I Run Code 대체)')
         .addStringOption((option) =>
@@ -189,6 +201,62 @@ export const playCommand: Command = {
           logger.error(`Failed to generate sandbox for ${examplePath}`, _error);
 
           let errorMsg = '샌드박스 생성에 실패했습니다.';
+          if (axios.isAxiosError(_error)) {
+            const axiosErr = _error as AxiosError<ErrorResponseData>;
+            errorMsg =
+              axiosErr.response?.data?.error ||
+              axiosErr.response?.data?.message ||
+              axiosErr.message;
+          } else if (_error instanceof Error) {
+            errorMsg = _error.message;
+          }
+
+          await interaction.editReply({ embeds: [createErrorEmbed(`API 통신 에러: ${errorMsg}`)] });
+        }
+        break;
+      }
+      case 'project': {
+        const examplePath = interaction.options.getString('path', true);
+        await interaction.deferReply();
+
+        try {
+          const apiUrl =
+            process.env.PLAYGROUNDS_API_URL || 'https://sonagi-playgrounds.sonagi-dev.workers.dev';
+          const response = await axios.get<SandboxApiResponse>(`${apiUrl}/sandbox`, {
+            params: { path: examplePath },
+            timeout: 10000,
+          });
+
+          const data = response.data;
+
+          if (data.status === 'success' && data.preview_url) {
+            const embed = new EmbedBuilder()
+              .setColor(Colors.SUCCESS)
+              .setTitle('📦 프로젝트 샌드박스')
+              .setDescription(
+                `\`${examplePath}\` 프로젝트가 샌드박스 환경에 세팅되었습니다!`
+              )
+              .addFields(
+                { name: 'Preview URL', value: data.preview_url },
+                ...(data.sandbox_url ? [{ name: 'Sandbox URL', value: data.sandbox_url }] : [])
+              )
+              .setTimestamp();
+
+            const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder()
+                .setLabel('Open Preview')
+                .setStyle(ButtonStyle.Link)
+                .setURL(data.preview_url)
+            );
+
+            await interaction.editReply({ embeds: [embed], components: [row] });
+          } else {
+            throw new Error(data.message || 'Unknown error from Playgrounds API');
+          }
+        } catch (_error: unknown) {
+          logger.error(`Failed to generate project sandbox for ${examplePath}`, _error);
+
+          let errorMsg = '프로젝트 샌드박스 생성에 실패했습니다.';
           if (axios.isAxiosError(_error)) {
             const axiosErr = _error as AxiosError<ErrorResponseData>;
             errorMsg =
