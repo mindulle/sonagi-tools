@@ -20,8 +20,37 @@ interface BookmarkItem {
   content: {
     imageUrl?: string;
     url?: string;
+    imageAssetId?: string;
+    screenshotAssetId?: string;
   };
 }
+
+const AuthImage = ({ assetId, alt }: { assetId: string, alt: string }) => {
+  const [src, setSrc] = useState<string>('');
+
+  useEffect(() => {
+    let objectUrl = '';
+    fetch(`${KARAKEEP_API_URL}/assets/${assetId}`, {
+      headers: { 'Authorization': `Bearer ${KARAKEEP_API_KEY}` }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Asset fetch failed');
+      return res.blob();
+    })
+    .then(blob => {
+      objectUrl = URL.createObjectURL(blob);
+      setSrc(objectUrl);
+    })
+    .catch(err => console.error(err));
+
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [assetId]);
+
+  if (!src) return <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center text-gray-400 text-xs">Loading...</div>;
+  return <img src={src} alt={alt} className="object-cover w-full h-full" loading="lazy" />;
+};
 
 function App() {
   const [tab, setTab] = useState<'assets' | 'references'>('assets');
@@ -110,10 +139,12 @@ function App() {
 
   const handleInsertBookmark = async (item: BookmarkItem) => {
     try {
-      const imageUrl = item.content?.imageUrl;
-      if (!imageUrl) return;
+      const assetId = item.content?.imageAssetId || item.content?.screenshotAssetId;
+      if (!assetId) return;
       
-      const response = await fetch(imageUrl + `?cb=${Date.now()}`, { cache: 'no-store' });
+      const response = await fetch(`${KARAKEEP_API_URL}/assets/${assetId}`, {
+        headers: { 'Authorization': `Bearer ${KARAKEEP_API_KEY}` }
+      });
       const buffer = await response.arrayBuffer();
       const bytes = new Uint8Array(buffer);
       parent.postMessage({ pluginMessage: { type: 'insert-image', bytes } }, '*');
@@ -212,26 +243,20 @@ function App() {
             })}
 
             {tab === 'references' && bookmarkItems.map(item => {
-              // Rewrite CDN URLs to bypass Cloudflare public block and hit internal MinIO directly over Tailscale
-              const rawUrl = item.content?.imageUrl || 'https://picsum.photos/seed/placeholder/400/300';
-              const previewUrl = rawUrl.replace('https://cdn.sonagi.space', 'http://100.82.121.40:30900');
+              const assetId = item.content?.imageAssetId || item.content?.screenshotAssetId;
               
               return (
                 <div 
                   key={item.id} 
                   className="border border-gray-200 rounded overflow-hidden bg-white shadow-sm hover:shadow hover:border-blue-300 transition-all cursor-pointer flex flex-col" 
-                  onClick={() => handleInsertBookmark({
-                    ...item,
-                    content: { ...item.content, imageUrl: previewUrl }
-                  })}
+                  onClick={() => handleInsertBookmark(item)}
                 >
                   <div className="h-24 bg-gray-100 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={previewUrl} 
-                      alt={item.title} 
-                      className="object-cover w-full h-full"
-                      loading="lazy"
-                    />
+                    {assetId ? (
+                      <AuthImage assetId={assetId} alt={item.title} />
+                    ) : (
+                      <span className="text-gray-400 text-xs">No Image</span>
+                    )}
                   </div>
                   <div className="p-2 border-t border-gray-100">
                     <p className="text-xs font-semibold truncate" title={item.title}>{item.title}</p>
