@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-// Using the same mocked data structure or standard structure
 interface EagleImage {
   id: string;
   name: string;
@@ -16,27 +15,25 @@ function App() {
   const fetchImages = async (query = '') => {
     setLoading(true);
     try {
-      // Typically this would fetch from EAGLE_API_URL or sonagi-assets
-      // For now, let's mock it since we are inside Figma iframe
-      // Figma plugins can make normal fetch() calls from ui.html!
-      // Example placeholder logic:
+      // Using picsum.photos because it guarantees CORS Access-Control-Allow-Origin: *
+      // which is strictly required for Figma's null-origin iframe to fetch images.
       const mockData: EagleImage[] = [
         {
           id: '1',
           name: 'Hero Section Reference',
-          url: 'https://via.placeholder.com/600x400.png?text=Hero+Section',
+          url: 'https://picsum.photos/seed/hero/400/300',
           tags: ['hero', 'web'],
         },
         {
           id: '2',
           name: 'Pricing Table UI',
-          url: 'https://via.placeholder.com/400x600.png?text=Pricing+Table',
+          url: 'https://picsum.photos/seed/pricing/400/300',
           tags: ['pricing', 'ui'],
         },
         {
           id: '3',
           name: 'Dashboard Layout',
-          url: 'https://via.placeholder.com/800x600.png?text=Dashboard',
+          url: 'https://picsum.photos/seed/dashboard/400/300',
           tags: ['dashboard', 'admin'],
         },
       ];
