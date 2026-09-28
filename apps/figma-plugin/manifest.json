@@ -6,6 +6,7 @@
   "ui": "dist/ui.html",
   "editorType": ["figma", "figjam"],
   "networkAccess": {
-    "allowedDomains": ["*"]
+    "allowedDomains": ["*"],
+    "reasoning": "Needs to fetch images from arbitrary external URLs provided by the Sonagi Assets API."
   }
 }
