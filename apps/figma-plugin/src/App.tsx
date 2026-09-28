@@ -45,9 +45,11 @@ function App() {
   const handleInsert = async (item: AssetHubItem) => {
     try {
       const isSvg = item.ext?.toLowerCase() === 'svg';
-      const url = `${API_URL}/api/image/${item.id}/original`;
+      // Append a cache buster so fetch() doesn't use the cached response 
+      // from the <img> tag (which might lack CORS headers).
+      const url = `${API_URL}/api/image/${item.id}/original?cb=${Date.now()}`;
 
-      const response = await fetch(url);
+      const response = await fetch(url, { cache: 'no-store' });
       
       if (isSvg) {
         const svgText = await response.text();
@@ -105,6 +107,7 @@ function App() {
                     <img 
                       src={previewUrl} 
                       alt={item.name} 
+                      crossOrigin="anonymous"
                       className={`max-w-full max-h-full ${item.ext === 'svg' ? 'object-contain p-2' : 'object-cover w-full h-full'}`}
                       loading="lazy"
                     />
