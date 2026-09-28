@@ -212,12 +212,18 @@ function App() {
             })}
 
             {tab === 'references' && bookmarkItems.map(item => {
-              const previewUrl = item.content?.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image';
+              // Rewrite CDN URLs to bypass Cloudflare public block and hit internal MinIO directly over Tailscale
+              const rawUrl = item.content?.imageUrl || 'https://picsum.photos/seed/placeholder/400/300';
+              const previewUrl = rawUrl.replace('https://cdn.sonagi.space', 'http://100.82.121.40:30900');
+              
               return (
                 <div 
                   key={item.id} 
                   className="border border-gray-200 rounded overflow-hidden bg-white shadow-sm hover:shadow hover:border-blue-300 transition-all cursor-pointer flex flex-col" 
-                  onClick={() => handleInsertBookmark(item)}
+                  onClick={() => handleInsertBookmark({
+                    ...item,
+                    content: { ...item.content, imageUrl: previewUrl }
+                  })}
                 >
                   <div className="h-24 bg-gray-100 flex items-center justify-center overflow-hidden">
                     <img 
