@@ -3,7 +3,7 @@ const { widget } = figma;
 const { AutoLayout, Input, SVG, useSyncedState, useWidgetId } = widget;
 const WidgetText = widget.Text;
 
-const CLI_PROXY_API = "http://100.82.121.40:8000/v1/chat/completions";
+const CLI_PROXY_API = "https://llm.lab.sonagi.space/v1/chat/completions";
 
 const ICON_SPARKLES = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L12.168 8.5H19L13.416 12.5L15.584 19L10 15L4.416 19L6.584 12.5L1 8.5H7.832L10 2Z" fill="#3B82F6"/></svg>';
 
@@ -40,8 +40,9 @@ function BrainstormWidget() {
       const data = await res.json();
       const reply = data?.choices?.[0]?.message?.content || "No response generated.";
       setResponse(reply.trim());
-    } catch (err) {
-      setResponse(`Error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (err: any) {
+      const errorMsg = err?.message || JSON.stringify(err, Object.getOwnPropertyNames(err)) || String(err);
+      setResponse(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
