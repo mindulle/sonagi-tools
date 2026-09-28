@@ -107,7 +107,6 @@ function App() {
                     <img 
                       src={previewUrl} 
                       alt={item.name} 
-                      crossOrigin="anonymous"
                       className={`max-w-full max-h-full ${item.ext === 'svg' ? 'object-contain p-2' : 'object-cover w-full h-full'}`}
                       loading="lazy"
                     />
