@@ -8,15 +8,17 @@ export interface EagleImage {
   tags: string[];
 }
 
-interface EagleItemData {
+interface AssetHubItem {
   id: string;
   name: string;
+  ext?: string;
   tags?: string[];
+  has_thumbnail?: boolean;
 }
 
-interface EagleApiResponse {
-  status: string;
-  data: EagleItemData[];
+interface AssetHubApiResponse {
+  total: number;
+  items: AssetHubItem[];
 }
 
 class EagleClient {
@@ -24,8 +26,8 @@ class EagleClient {
   private apiUrl: string;
 
   private constructor() {
-    // Sonagi Eagle Gallery Proxy URL or Local Eagle App URL
-    this.apiUrl = process.env.EAGLE_API_URL || 'http://localhost:41595';
+    // Sonagi Asset Hub (Eagle Gallery compatible) API URL
+    this.apiUrl = process.env.EAGLE_API_URL || 'http://localhost:34920';
   }
 
   public static getInstance(): EagleClient {
@@ -37,13 +39,13 @@ class EagleClient {
 
   public async searchImages(query: string): Promise<EagleImage[]> {
     try {
-      // Calling Eagle App's local API (or Sonagi proxy equivalent)
-      const response = await axios.get<EagleApiResponse>(`${this.apiUrl}/api/item/list`, {
-        params: { keyword: query, limit: 10 },
+      // Calling Sonagi Asset Hub API (/api/items)
+      const response = await axios.get<AssetHubApiResponse>(`${this.apiUrl}/api/items`, {
+        params: { search: query, limit: 10 },
       });
 
-      if (response.data && response.data.status === 'success') {
-        const items = response.data.data;
+      if (response.data && response.data.items) {
+        const items = response.data.items;
 
         if (!items || items.length === 0) {
           return [];
@@ -52,8 +54,8 @@ class EagleClient {
         return items.map((item) => ({
           id: item.id,
           name: item.name,
-          // Eagle App serves thumbnails via this endpoint
-          url: `${this.apiUrl}/api/item/thumbnail?id=${item.id}`,
+          // Asset Hub serves thumbnails via this endpoint
+          url: `${this.apiUrl}/api/image/${item.id}/thumbnail`,
           tags: item.tags || [],
         }));
       }

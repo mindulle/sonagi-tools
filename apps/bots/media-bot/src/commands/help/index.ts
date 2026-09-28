@@ -19,10 +19,6 @@ export const helpCommand: Command = {
           value: '`/cdn` - MinIO 스토리지 버킷 및 로컬 CDN을 제어하고 에셋을 업로드합니다.',
         },
         {
-          name: '🖼️ 갤러리 (Eagle)',
-          value: '`/gallery` - Eagle 갤러리 앱과 연동하여 이미지 에셋을 검색하고 가져옵니다.',
-        },
-        {
           name: '📻 라디오 & 오디오',
           value: '`/radio` - 음성 채널에서 팟캐스트, 라디오 스트림 등을 재생합니다.',
         }

@@ -9,7 +9,6 @@ import { registerMessageCreateEvent } from './events/messageCreate';
 
 // Import commands
 import { cdnCommand } from './commands/cdn/index';
-import { galleryCommand } from './commands/gallery/index';
 import { radioCommand } from './commands/radio/index';
 import { helpCommand } from './commands/help/index';
 
@@ -50,7 +49,6 @@ async function main() {
 
     const commands: CommandMap = new Map([
       [cdnCommand.data.name, cdnCommand],
-      [galleryCommand.data.name, galleryCommand],
       [radioCommand.data.name, radioCommand],
       [helpCommand.data.name, helpCommand],
     ]);

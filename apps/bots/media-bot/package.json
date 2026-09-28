@@ -9,7 +9,7 @@
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "@sonagi-bots/shared": "*",
+    "@sonagi-bots/shared": "workspace:*",
     "@discord-player/extractor": "^7.2.0",
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.19.2",
