@@ -12,7 +12,7 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        ui: 'src/ui.html',
+        ui: 'ui.html',
       },
     },
   },
