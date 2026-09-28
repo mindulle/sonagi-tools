@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 const ASSETS_API_URL = 'https://assets.sonagi.space';
 const KARAKEEP_API_URL = 'https://ref.sonagi.space/api/v1';
-// Hardcoded token for internal use
 const KARAKEEP_API_KEY = 'ak2_57b030c6292c755b5974_584bf208b5a778316d5f95a93f80ba9e';
+
+// Placeholder for internal CLIproxyAPI
+const INTERNAL_LLM_API_URL = 'http://100.82.121.40:8000/v1/chat/completions'; // Example IP
 
 interface AssetHubItem {
   id: string;
@@ -53,11 +55,25 @@ const AuthImage = ({ assetId, alt }: { assetId: string, alt: string }) => {
 };
 
 function App() {
-  const [tab, setTab] = useState<'assets' | 'references'>('assets');
+  const [tab, setTab] = useState<'assets' | 'references' | 'ai'>('assets');
   const [assetItems, setAssetItems] = useState<AssetHubItem[]>([]);
   const [bookmarkItems, setBookmarkItems] = useState<BookmarkItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  
+  // AI States
+  const [selectedTexts, setSelectedTexts] = useState<string[]>([]);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (msg && msg.type === 'selection-updated') {
+        setSelectedTexts(msg.texts || []);
+      }
+    };
+  }, []);
 
   const fetchAssets = async (query = '') => {
     setLoading(true);
@@ -75,13 +91,8 @@ function App() {
   const fetchBookmarks = async (query = '') => {
     setLoading(true);
     try {
-      // Karakeep search endpoint might be slightly different, but /bookmarks supports ?q= or similar?
-      // Wait, let's just fetch recent if no query, or we can filter locally for MVP if API lacks simple search.
-      // Usually Hoarder API has a search param, let's assume filtering locally if we just pull 50.
       const response = await fetch(`${KARAKEEP_API_URL}/bookmarks?limit=50`, {
-        headers: {
-          'Authorization': `Bearer ${KARAKEEP_API_KEY}`
-        }
+        headers: { 'Authorization': `Bearer ${KARAKEEP_API_KEY}` }
       });
       const data = await response.json();
       let items: BookmarkItem[] = data.bookmarks || [];
@@ -100,23 +111,9 @@ function App() {
   };
 
   useEffect(() => {
-    if (tab === 'assets') {
-      fetchAssets(search);
-    } else {
-      fetchBookmarks(search);
-    }
+    if (tab === 'assets' && assetItems.length === 0) fetchAssets();
+    else if (tab === 'references' && bookmarkItems.length === 0) fetchBookmarks();
   }, [tab]);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      if (tab === 'assets') fetchAssets(search);
-      else fetchBookmarks(search);
-    }
-  };
 
   const handleInsertAsset = async (item: AssetHubItem) => {
     try {
@@ -153,8 +150,36 @@ function App() {
     }
   };
 
+  // ---------------- AI Functions ----------------
+
+  const callMockInternalLLM = async (prompt: string, type: 'search' | 'wireframe' | 'summary') => {
+    // In real usage, fetch() to CLIproxyAPI
+    setAiLoading(true);
+    await new Promise(r => setTimeout(r, 1500)); // mock network delay
+    setAiLoading(false);
+
+    if (type === 'search') {
+      setSearch(prompt);
+      setTab('references');
+      fetchBookmarks(prompt);
+    } 
+    else if (type === 'summary') {
+      const resultText = `✨ AI 요약: \n- 총 ${selectedTexts.length}개의 노트 분석\n- 핵심 키워드: ${selectedTexts.join(', ').substring(0, 30)}...`;
+      parent.postMessage({ pluginMessage: { type: 'create-sticky', text: resultText } }, '*');
+    }
+    else if (type === 'wireframe') {
+      // Mock generated JSON layout
+      const layout = [
+        { name: 'Header / Nav', w: 400, h: 60 },
+        { name: 'Hero Image Area', w: 400, h: 250 },
+        { name: 'CTA Button', w: 200, h: 50 }
+      ];
+      parent.postMessage({ pluginMessage: { type: 'create-wireframe', layout } }, '*');
+    }
+  };
+
   return (
-    <div className="p-4 bg-gray-50 min-h-screen text-gray-900 flex flex-col h-screen">
+    <div className="p-4 bg-gray-50 min-h-screen text-gray-900 flex flex-col h-screen overflow-hidden">
       <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h1 className="text-lg font-bold">Sonagi Tools</h1>
       </div>
@@ -162,116 +187,143 @@ function App() {
       <div className="flex gap-2 mb-4 border-b border-gray-200 flex-shrink-0">
         <button 
           className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'assets' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
-          onClick={() => { setTab('assets'); setSearch(''); }}
+          onClick={() => { setTab('assets'); }}
         >
-          Internal Assets
+          Internal
         </button>
         <button 
           className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'references' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
-          onClick={() => { setTab('references'); setSearch(''); }}
+          onClick={() => { setTab('references'); }}
         >
-          References
+          Ref
         </button>
-      </div>
-      
-      <div className="flex gap-2 mb-4 flex-shrink-0">
-        <input
-          type="text"
-          className="flex-1 p-2 border border-gray-300 rounded text-sm"
-          placeholder="Search... (Press Enter)"
-          value={search}
-          onChange={handleSearch}
-          onKeyDown={handleKeyDown}
-        />
         <button 
-          className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 text-sm"
-          onClick={() => {
-            if (tab === 'assets') fetchAssets(search);
-            else fetchBookmarks(search);
-          }}
+          className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'ai' ? 'border-b-2 border-purple-500 text-purple-600 flex items-center gap-1' : 'text-gray-500 flex items-center gap-1'}`}
+          onClick={() => { setTab('ai'); }}
         >
-          Search
+          ✨ AI
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {loading ? (
-          <p className="text-gray-500 text-sm text-center mt-10">Loading...</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 pb-4">
-            {tab === 'assets' && assetItems.length === 0 && (
-              <p className="text-gray-500 text-sm text-center mt-10 col-span-2">No assets found.</p>
-            )}
-            {tab === 'references' && bookmarkItems.length === 0 && (
-              <p className="text-gray-500 text-sm text-center mt-10 col-span-2">No references found.</p>
-            )}
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        {/* --- AI TAB --- */}
+        {tab === 'ai' && (
+          <div className="flex flex-col gap-4">
+            <div className="bg-purple-50 p-3 rounded border border-purple-100">
+              <h3 className="text-sm font-bold text-purple-800 mb-1">선택된 텍스트 ({selectedTexts.length}개)</h3>
+              <p className="text-xs text-purple-600 line-clamp-2">
+                {selectedTexts.length > 0 ? selectedTexts.join(' / ') : '캔버스에서 스티키 노트나 텍스트를 선택해주세요.'}
+              </p>
+            </div>
 
-            {tab === 'assets' && assetItems.map(item => {
-              const previewUrl = item.has_thumbnail 
-                ? `${ASSETS_API_URL}/api/image/${item.id}/thumbnail`
-                : `${ASSETS_API_URL}/api/image/${item.id}/original`;
+            <div className="flex flex-col gap-2">
+              <button 
+                disabled={selectedTexts.length === 0 || aiLoading}
+                onClick={() => callMockInternalLLM(selectedTexts[0], 'search')}
+                className="bg-white border border-gray-300 text-gray-700 p-2 rounded text-sm hover:bg-gray-50 disabled:opacity-50 text-left"
+              >
+                🔎 선택한 텍스트로 <span className="font-bold">레퍼런스 찾기</span>
+              </button>
+              <button 
+                disabled={selectedTexts.length === 0 || aiLoading}
+                onClick={() => callMockInternalLLM(selectedTexts.join('\n'), 'summary')}
+                className="bg-white border border-gray-300 text-gray-700 p-2 rounded text-sm hover:bg-gray-50 disabled:opacity-50 text-left"
+              >
+                📝 선택한 내용 <span className="font-bold">요약본 생성</span>
+              </button>
+            </div>
 
-              return (
-                <div 
-                  key={item.id} 
-                  className="border border-gray-200 rounded overflow-hidden bg-white shadow-sm hover:shadow hover:border-blue-300 transition-all cursor-pointer flex flex-col" 
-                  onClick={() => handleInsertAsset(item)}
-                >
-                  <div className="h-24 bg-gray-100 flex items-center justify-center overflow-hidden relative">
-                    <img 
-                      src={previewUrl} 
-                      alt={item.name} 
-                      className={`max-w-full max-h-full ${item.ext === 'svg' ? 'object-contain p-2' : 'object-cover w-full h-full'}`}
-                      loading="lazy"
-                    />
-                    {item.ext === 'svg' && (
-                      <span className="absolute top-1 right-1 bg-black/50 text-white text-[9px] px-1 rounded">SVG</span>
-                    )}
-                  </div>
-                  <div className="p-2 border-t border-gray-100">
-                    <p className="text-xs font-semibold truncate" title={item.name}>{item.name}</p>
-                    <div className="flex gap-1 mt-1 overflow-hidden h-4">
-                      {item.tags?.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[10px] bg-gray-100 text-gray-600 px-1 py-0.5 rounded truncate max-w-full">
-                          #{tag.split(':').pop() || tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {tab === 'references' && bookmarkItems.map(item => {
-              const assetId = item.content?.imageAssetId || item.content?.screenshotAssetId;
-              
-              return (
-                <div 
-                  key={item.id} 
-                  className="border border-gray-200 rounded overflow-hidden bg-white shadow-sm hover:shadow hover:border-blue-300 transition-all cursor-pointer flex flex-col" 
-                  onClick={() => handleInsertBookmark(item)}
-                >
-                  <div className="h-24 bg-gray-100 flex items-center justify-center overflow-hidden">
-                    {assetId ? (
-                      <AuthImage assetId={assetId} alt={item.title} />
-                    ) : (
-                      <span className="text-gray-400 text-xs">No Image</span>
-                    )}
-                  </div>
-                  <div className="p-2 border-t border-gray-100">
-                    <p className="text-xs font-semibold truncate" title={item.title}>{item.title}</p>
-                    <div className="flex gap-1 mt-1 overflow-hidden h-4">
-                      {item.tags?.slice(0, 2).map(tag => (
-                        <span key={tag.name} className="text-[10px] bg-gray-100 text-gray-600 px-1 py-0.5 rounded truncate max-w-full">
-                          #{tag.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            <div className="mt-4">
+              <h3 className="text-sm font-bold text-gray-700 mb-2">프롬프트로 생성</h3>
+              <textarea 
+                className="w-full p-2 border border-gray-300 rounded text-sm mb-2"
+                rows={3}
+                placeholder="예: 깔끔한 B2B 로그인 화면 뼈대 만들어줘"
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+              />
+              <button 
+                disabled={aiLoading || !aiPrompt.trim()}
+                onClick={() => callMockInternalLLM(aiPrompt, 'wireframe')}
+                className="w-full bg-purple-600 text-white p-2 rounded text-sm font-bold hover:bg-purple-700 disabled:opacity-50"
+              >
+                {aiLoading ? 'AI 생성 중...' : '✨ 와이어프레임 자동 생성'}
+              </button>
+            </div>
           </div>
+        )}
+
+        {/* --- ASSETS / REFS TAB --- */}
+        {tab !== 'ai' && (
+          <>
+            <div className="flex gap-2 mb-4 flex-shrink-0">
+              <input
+                type="text"
+                className="flex-1 p-2 border border-gray-300 rounded text-sm"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <button 
+                className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 text-sm"
+                onClick={() => tab === 'assets' ? fetchAssets(search) : fetchBookmarks(search)}
+              >
+                Search
+              </button>
+            </div>
+
+            {loading ? (
+              <p className="text-gray-500 text-sm text-center mt-10">Loading...</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 pb-4">
+                {tab === 'assets' && assetItems.map(item => {
+                  const previewUrl = item.has_thumbnail 
+                    ? `${ASSETS_API_URL}/api/image/${item.id}/thumbnail`
+                    : `${ASSETS_API_URL}/api/image/${item.id}/original`;
+
+                  return (
+                    <div 
+                      key={item.id} 
+                      className="border border-gray-200 rounded overflow-hidden bg-white shadow-sm hover:shadow hover:border-blue-300 cursor-pointer flex flex-col" 
+                      onClick={() => handleInsertAsset(item)}
+                    >
+                      <div className="h-24 bg-gray-100 flex items-center justify-center overflow-hidden relative">
+                        <img 
+                          src={previewUrl} 
+                          alt={item.name} 
+                          className={`max-w-full max-h-full ${item.ext === 'svg' ? 'object-contain p-2' : 'object-cover w-full h-full'}`}
+                          loading="lazy"
+                        />
+                        {item.ext === 'svg' && <span className="absolute top-1 right-1 bg-black/50 text-white text-[9px] px-1 rounded">SVG</span>}
+                      </div>
+                      <div className="p-2 border-t border-gray-100">
+                        <p className="text-xs font-semibold truncate" title={item.name}>{item.name}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {tab === 'references' && bookmarkItems.map(item => {
+                  const assetId = item.content?.imageAssetId || item.content?.screenshotAssetId;
+                  return (
+                    <div 
+                      key={item.id} 
+                      className="border border-gray-200 rounded overflow-hidden bg-white shadow-sm hover:shadow hover:border-blue-300 cursor-pointer flex flex-col" 
+                      onClick={() => handleInsertBookmark(item)}
+                    >
+                      <div className="h-24 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {assetId ? <AuthImage assetId={assetId} alt={item.title} /> : <span className="text-gray-400 text-xs">No Image</span>}
+                      </div>
+                      <div className="p-2 border-t border-gray-100">
+                        <p className="text-xs font-semibold truncate" title={item.title}>{item.title}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
