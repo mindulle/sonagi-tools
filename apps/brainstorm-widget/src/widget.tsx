@@ -24,7 +24,7 @@ function BrainstormWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "gpt-4o",
+          model: "gemini-3.7-flash-high", // Available model in CLIproxyAPI
           messages: [
             { 
               role: "system", 
