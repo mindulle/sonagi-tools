@@ -55,13 +55,15 @@ function BrainstormWidget() {
     const widgetNode = figma.getNodeById(widgetId) as WidgetNode;
     
     if ('createSticky' in figma) {
+      // FigJam Sticky Notes use Inter Medium by default, we must load it first
+      await (figma as any).loadFontAsync({ family: "Inter", style: "Medium" });
       const sticky = (figma as any).createSticky();
       sticky.text.characters = response;
       // Position sticky note to the right of the widget
       sticky.x = widgetNode.x + widgetNode.width + 40;
       sticky.y = widgetNode.y;
-      figma.currentPage.appendChild(sticky);
-      figma.currentPage.selection = [sticky];
+      (figma as any).currentPage.appendChild(sticky);
+      (figma as any).currentPage.selection = [sticky];
     } else {
       // Fallback for normal Figma
       await (figma as any).loadFontAsync({ family: "Inter", style: "Regular" });
