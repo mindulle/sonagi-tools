@@ -115,6 +115,13 @@ function App() {
     else if (tab === 'references' && bookmarkItems.length === 0) fetchBookmarks();
   }, [tab]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (tab === 'assets') fetchAssets(search);
+      else fetchBookmarks(search);
+    }
+  };
+
   const handleInsertAsset = async (item: AssetHubItem) => {
     try {
       const isSvg = item.ext?.toLowerCase() === 'svg';
