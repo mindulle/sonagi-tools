@@ -1,5 +1,7 @@
+/// <reference types="@figma/widget-typings" />
 const { widget } = figma;
-const { AutoLayout, Text, Input, SVG, useSyncedState, useWidgetId } = widget;
+const { AutoLayout, Input, SVG, useSyncedState, useWidgetId } = widget;
+const WidgetText = widget.Text;
 
 const CLI_PROXY_API = "http://100.82.121.40:8000/v1/chat/completions";
 
@@ -56,7 +58,7 @@ function BrainstormWidget() {
     const widgetNode = figma.getNodeById(widgetId) as WidgetNode;
     
     if ('createSticky' in figma) {
-      const sticky = figma.createSticky();
+      const sticky = (figma as any).createSticky();
       sticky.text.characters = response;
       // Position sticky note to the right of the widget
       sticky.x = widgetNode.x + widgetNode.width + 40;
@@ -65,13 +67,13 @@ function BrainstormWidget() {
       figma.currentPage.selection = [sticky];
     } else {
       // Fallback for normal Figma
-      await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-      const text = figma.createText();
+      await (figma as any).loadFontAsync({ family: "Inter", style: "Regular" });
+      const text = (figma as any).createText();
       text.characters = response;
       text.x = widgetNode.x + widgetNode.width + 40;
       text.y = widgetNode.y;
-      figma.currentPage.appendChild(text);
-      figma.currentPage.selection = [text];
+      (figma as any).currentPage.appendChild(text);
+      (figma as any).currentPage.selection = [text];
     }
   };
 
@@ -94,24 +96,29 @@ function BrainstormWidget() {
       {/* 2-Layer Hierarchy: Outer wrapper -> Header inner layer */}
       <AutoLayout direction="horizontal" spacing={8} verticalAlignItems="center" width="fill-parent">
         <SVG src={ICON_SPARKLES} />
-        <Text fontSize={18} fontWeight="bold" fill="#111827">
+        <WidgetText fontSize={18} fontWeight="bold" fill="#111827">
           Ideation Partner
-        </Text>
+        </WidgetText>
       </AutoLayout>
       
       {/* 2-Layer Hierarchy: Outer wrapper -> Input layer */}
       <AutoLayout direction="vertical" spacing={12} width="fill-parent">
-        <Input
-          value={prompt}
-          placeholder="ex) User onboarding gamification..."
-          onTextEditEnd={(e) => setPrompt(e.characters)}
+        <AutoLayout
           fill="#F9FAFB"
           stroke="#D1D5DB"
           width="fill-parent"
           padding={16}
           cornerRadius={8}
-          fontSize={15}
-        />
+        >
+          <Input
+            value={prompt}
+            placeholder="ex) User onboarding gamification..."
+            onTextEditEnd={(e: TextEditEvent) => setPrompt(e.characters)}
+            fontSize={15}
+            width="fill-parent"
+            fill="#111827"
+          />
+        </AutoLayout>
         
         <AutoLayout
           fill={loading ? "#93C5FD" : "#2563EB"}
@@ -122,9 +129,9 @@ function BrainstormWidget() {
           onClick={handleGenerate}
           hoverStyle={{ fill: loading ? "#93C5FD" : "#1D4ED8" }}
         >
-          <Text fontSize={15} fill="#FFFFFF" fontWeight="bold">
+          <WidgetText fontSize={15} fill="#FFFFFF" fontWeight="bold">
             {loading ? "Generating Ideas..." : "Generate"}
-          </Text>
+          </WidgetText>
         </AutoLayout>
       </AutoLayout>
       
@@ -138,9 +145,9 @@ function BrainstormWidget() {
           width="fill-parent"
           spacing={16}
         >
-          <Text fontSize={14} fill="#374151" width="fill-parent" lineHeight={20}>
+          <WidgetText fontSize={14} fill="#374151" width="fill-parent" lineHeight={20}>
             {response}
-          </Text>
+          </WidgetText>
 
           {/* Action: Push to Canvas */}
           <AutoLayout
@@ -153,9 +160,9 @@ function BrainstormWidget() {
             hoverStyle={{ fill: "#F9FAFB" }}
             width="fill-parent"
           >
-            <Text fontSize={13} fill="#4B5563" fontWeight="bold">
+            <WidgetText fontSize={13} fill="#4B5563" fontWeight="bold">
               Extract to Sticky Note
-            </Text>
+            </WidgetText>
           </AutoLayout>
         </AutoLayout>
       )}
