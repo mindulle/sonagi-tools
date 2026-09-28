@@ -1,3 +1,5 @@
+import { exportTokens, importTokens } from './tokens';
+
 figma.showUI(__html__, { width: 340, height: 600, themeColors: true });
 
 // Send initial selection
@@ -87,5 +89,27 @@ figma.ui.onmessage = async (msg) => {
     
     figma.currentPage.selection = nodes;
     figma.viewport.scrollAndZoomIntoView(nodes);
+  }
+  else if (msg.type === 'get-github-config') {
+    const config = await figma.clientStorage.getAsync('github-config');
+    figma.ui.postMessage({ type: 'github-config-loaded', config });
+  }
+  else if (msg.type === 'set-github-config') {
+    await figma.clientStorage.setAsync('github-config', msg.config);
+  }
+  else if (msg.type === 'export-tokens') {
+    try {
+      const tokens = await exportTokens();
+      figma.ui.postMessage({ type: 'export-tokens-result', payload: tokens });
+    } catch (e: any) {
+      figma.ui.postMessage({ type: 'error', message: e.message });
+    }
+  }
+  else if (msg.type === 'import-tokens') {
+    try {
+      await importTokens(msg.payload);
+    } catch (e: any) {
+      figma.ui.postMessage({ type: 'error', message: e.message });
+    }
   }
 };

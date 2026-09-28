@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { TokensTab } from './components/TokensTab';
 
 const ASSETS_API_URL = 'https://assets.sonagi.space';
 const KARAKEEP_API_URL = 'https://ref.sonagi.space/api/v1';
@@ -55,7 +56,7 @@ const AuthImage = ({ assetId, alt }: { assetId: string, alt: string }) => {
 };
 
 function App() {
-  const [tab, setTab] = useState<'assets' | 'references' | 'ai'>('assets');
+  const [tab, setTab] = useState<'assets' | 'references' | 'ai' | 'tokens'>('assets');
   const [assetItems, setAssetItems] = useState<AssetHubItem[]>([]);
   const [bookmarkItems, setBookmarkItems] = useState<BookmarkItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -205,6 +206,12 @@ function App() {
           Ref
         </button>
         <button 
+          className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'tokens' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+          onClick={() => { setTab('tokens'); }}
+        >
+          Tokens
+        </button>
+        <button 
           className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'ai' ? 'border-b-2 border-purple-500 text-purple-600 flex items-center gap-1' : 'text-gray-500 flex items-center gap-1'}`}
           onClick={() => { setTab('ai'); }}
         >
@@ -260,8 +267,10 @@ function App() {
           </div>
         )}
 
+        {tab === 'tokens' && <TokensTab />}
+
         {/* --- ASSETS / REFS TAB --- */}
-        {tab !== 'ai' && (
+        {(tab === 'assets' || tab === 'references') && (
           <>
             <div className="flex gap-2 mb-4 flex-shrink-0">
               <input
