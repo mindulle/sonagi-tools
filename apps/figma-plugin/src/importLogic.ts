@@ -1,4 +1,4 @@
-export function hexToRgba(hex: string): RGBA | null {
+export function hexToRgba(hex: string): { r: number; g: number; b: number; a: number } | null {
   if (typeof hex !== 'string' || (!hex.startsWith('#') && !/^[0-9A-F]{3,8}$/i.test(hex))) {
     return null; // Not a valid hex color
   }
