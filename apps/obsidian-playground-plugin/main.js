@@ -57580,6 +57580,89 @@ var require_SonagiPlayground = __commonJS({
   }
 });
 
+// ../../packages/playground-core/dist/components/SonagiJupyter.js
+var require_SonagiJupyter = __commonJS({
+  "../../packages/playground-core/dist/components/SonagiJupyter.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SonagiJupyterPlayground = void 0;
+    var jsx_runtime_1 = require_jsx_runtime();
+    var react_1 = require_react2();
+    var SonagiJupyterPlayground2 = ({ notebook, executeEndpoint = "/api/execute", theme = "dark" }) => {
+      const [cells, setCells] = (0, react_1.useState)(notebook.cells || []);
+      const [runningIndex, setRunningIndex] = (0, react_1.useState)(null);
+      const getSourceText = (source) => Array.isArray(source) ? source.join("") : source;
+      const handleRun = async (index) => {
+        setRunningIndex(index);
+        const codeToRun = cells.slice(0, index + 1).filter((c) => c.cell_type === "code").map((c) => getSourceText(c.source)).join("\n\n");
+        try {
+          const res = await fetch(executeEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ language: "python", code: codeToRun })
+          });
+          const data = await res.json();
+          setCells((prev) => prev.map((cell, i) => {
+            if (i === index) {
+              return {
+                ...cell,
+                execution_count: (cell.execution_count || 0) + 1,
+                outputs: [{
+                  output_type: "stream",
+                  name: "stdout",
+                  text: data.output || data.stdout || String(data)
+                }]
+              };
+            }
+            return cell;
+          }));
+        } catch (e) {
+          setCells((prev) => prev.map((cell, i) => {
+            if (i === index) {
+              return {
+                ...cell,
+                outputs: [{
+                  output_type: "error",
+                  ename: "ExecutionError",
+                  evalue: e.message,
+                  traceback: [e.message]
+                }]
+              };
+            }
+            return cell;
+          }));
+        } finally {
+          setRunningIndex(null);
+        }
+      };
+      const containerStyle = {
+        fontFamily: "sans-serif",
+        background: theme === "dark" ? "#1e1e1e" : "#ffffff",
+        color: theme === "dark" ? "#d4d4d4" : "#333333",
+        padding: "20px",
+        borderRadius: "8px",
+        border: `1px solid ${theme === "dark" ? "#333" : "#ddd"}`
+      };
+      const cellStyle = {
+        marginBottom: "16px",
+        padding: "12px",
+        background: theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+        borderRadius: "6px",
+        position: "relative"
+      };
+      return (0, jsx_runtime_1.jsx)("div", { className: "sonagi-jupyter-container", style: containerStyle, children: cells.map((cell, index) => (0, jsx_runtime_1.jsxs)("div", { style: cellStyle, className: `jupyter-cell ${cell.cell_type}`, children: [cell.cell_type === "markdown" && (0, jsx_runtime_1.jsx)("div", { className: "markdown-body", children: (0, jsx_runtime_1.jsx)("pre", { style: { whiteSpace: "pre-wrap", margin: 0 }, children: getSourceText(cell.source) }) }), cell.cell_type === "code" && (0, jsx_runtime_1.jsxs)("div", { className: "code-body", children: [(0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }, children: [(0, jsx_runtime_1.jsxs)("span", { style: { color: "#888", fontSize: "0.85em" }, children: ["In [", cell.execution_count || " ", "]:"] }), (0, jsx_runtime_1.jsx)("button", { onClick: () => handleRun(index), disabled: runningIndex !== null, style: {
+        background: "#0e639c",
+        color: "#fff",
+        border: "none",
+        padding: "4px 12px",
+        borderRadius: "4px",
+        cursor: "pointer"
+      }, children: runningIndex === index ? "Running..." : "\u25B6 Run" })] }), (0, jsx_runtime_1.jsx)("pre", { style: { margin: 0, padding: "10px", background: theme === "dark" ? "#1e1e1e" : "#fff", border: "1px solid #444", borderRadius: "4px", overflowX: "auto" }, children: (0, jsx_runtime_1.jsx)("code", { children: getSourceText(cell.source) }) }), cell.outputs && cell.outputs.length > 0 && (0, jsx_runtime_1.jsx)("div", { className: "code-outputs", style: { marginTop: "10px", padding: "10px", background: theme === "dark" ? "#000" : "#eef", borderRadius: "4px" }, children: cell.outputs.map((out, oIdx) => (0, jsx_runtime_1.jsx)("pre", { style: { margin: 0, color: out.output_type === "error" ? "red" : "inherit" }, children: out.text || out.evalue || JSON.stringify(out) }, oIdx)) })] })] }, index)) });
+    };
+    exports.SonagiJupyterPlayground = SonagiJupyterPlayground2;
+  }
+});
+
 // ../../packages/playground-core/dist/index.js
 var require_dist11 = __commonJS({
   "../../packages/playground-core/dist/index.js"(exports) {
@@ -57602,6 +57685,7 @@ var require_dist11 = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     __exportStar(require_SonagiPlayground(), exports);
+    __exportStar(require_SonagiJupyter(), exports);
   }
 });
 
@@ -57620,6 +57704,9 @@ var SonagiPlaygroundPlugin = class extends import_obsidian.Plugin {
     console.log("Loading Sonagi Playground Plugin");
     this.registerMarkdownCodeBlockProcessor("sonagi-playground", (source, el) => {
       this.processPlaygroundCodeBlock(source, el);
+    });
+    this.registerMarkdownCodeBlockProcessor("sonagi-jupyter", (source, el) => {
+      this.processJupyterCodeBlock(source, el);
     });
   }
   unload() {
@@ -57648,6 +57735,28 @@ var SonagiPlaygroundPlugin = class extends import_obsidian.Plugin {
         showTabs: config.showTabs !== false,
         showLineNumbers: config.showLineNumbers !== false,
         editorHeight: config.editorHeight || 400
+      })
+    );
+  }
+  processJupyterCodeBlock(source, el) {
+    let notebook;
+    try {
+      notebook = JSON.parse(source);
+    } catch (e) {
+      el.createEl("div", {
+        text: `[sonagi-jupyter] Failed to parse JSON config: ${e.message}`,
+        cls: "jupyter-error",
+        attr: { style: "color: red; padding: 10px; border: 1px solid red;" }
+      });
+      return;
+    }
+    const container = el.createEl("div", { cls: "sonagi-jupyter-wrapper" });
+    const root = (0, import_client.createRoot)(container);
+    root.render(
+      React3.createElement(import_playground_core.SonagiJupyterPlayground, {
+        notebook,
+        executeEndpoint: notebook.executeEndpoint || "/api/execute",
+        theme: notebook.theme || "dark"
       })
     );
   }

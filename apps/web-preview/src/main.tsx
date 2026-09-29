@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { SonagiPlayground } from '../../../packages/playground-core/src/index';
+import { SonagiPlayground, SonagiJupyterPlayground, JupyterNotebook } from '../../../packages/playground-core/src/index';
 
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: ReactNode}) {
@@ -32,23 +32,52 @@ const exampleFiles = {
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       <h1>Hello Sonagi Playgrounds! ⛈️</h1>
-      <p>This is a live test of the \`@sonagi-tools/playground-core\` component.</p>
     </div>
   )
 }`
 };
 
+const exampleNotebook: JupyterNotebook = {
+  cells: [
+    {
+      cell_type: 'markdown',
+      source: '# JupyterLite Playground Test\nThis is a sample markdown cell inside a Jupyter notebook JSON structure.'
+    },
+    {
+      cell_type: 'code',
+      execution_count: 1,
+      source: ['import numpy as np\n', 'print("Hello JupyterLite!")\n', 'np.random.rand(3)'],
+      outputs: [
+        {
+          output_type: 'stream',
+          name: 'stdout',
+          text: 'Hello JupyterLite!\n'
+        }
+      ]
+    }
+  ]
+};
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <h2>Playground Core - Visual Test</h2>
-      <SonagiPlayground 
-        template="react" 
-        files={exampleFiles} 
-        theme="light" // Changed to light so it contrasts with dark background
-        showLineNumbers={true} 
-        showTabs={true} 
-      />
+      <div style={{ paddingBottom: "2rem" }}>
+        <h2>Playground Core - Visual Test</h2>
+        <SonagiPlayground 
+          template="react" 
+          files={exampleFiles} 
+          theme="light"
+          showLineNumbers={true} 
+          showTabs={true} 
+        />
+      </div>
+      <div style={{ paddingBottom: "2rem" }}>
+        <h2>JupyterLite Core - Visual Test</h2>
+        <SonagiJupyterPlayground 
+          notebook={exampleNotebook}
+          theme="light"
+        />
+      </div>
     </ErrorBoundary>
   </React.StrictMode>,
 )
