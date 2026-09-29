@@ -57616,13 +57616,13 @@ var React3 = __toESM(require_react(), 1);
 var import_client = __toESM(require_client(), 1);
 var import_playground_core = __toESM(require_dist11(), 1);
 var SonagiPlaygroundPlugin = class extends import_obsidian.Plugin {
-  async onload() {
+  onload() {
     console.log("Loading Sonagi Playground Plugin");
     this.registerMarkdownCodeBlockProcessor("sonagi-playground", (source, el) => {
       this.processPlaygroundCodeBlock(source, el);
     });
   }
-  async unload() {
+  unload() {
     console.log("Unloading Sonagi Playground Plugin");
   }
   processPlaygroundCodeBlock(source, el) {
