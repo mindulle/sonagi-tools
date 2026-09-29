@@ -1,0 +1,16 @@
+{
+  "name": "@sonagi/brainstorm-widget",
+  "version": "1.0.0",
+  "description": "FigJam Brainstorming Widget with LLM Integration",
+  "main": "dist/widget.js",
+  "scripts": {
+    "dev": "esbuild src/widget.tsx --bundle --outfile=dist/widget.js --watch",
+    "build": "esbuild src/widget.tsx --bundle --outfile=dist/widget.js"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.139.0",
+    "@figma/widget-typings": "^1.13.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.0.0"
+  }
+}

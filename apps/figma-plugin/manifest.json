@@ -1,0 +1,12 @@
+{
+  "name": "Sonagi Design Tools",
+  "id": "123456789",
+  "api": "1.0.0",
+  "main": "dist/plugin.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma", "figjam"],
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "Needs to fetch images from arbitrary external URLs provided by the Sonagi Assets API."
+  }
+}

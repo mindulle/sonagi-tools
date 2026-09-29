@@ -1,0 +1,13 @@
+{
+  "name": "Sonagi Brainstorm",
+  "id": "sonagi-brainstorm-widget",
+  "api": "1.0.0",
+  "widgetApi": "1.0.0",
+  "editorType": ["figjam"],
+  "containsWidget": true,
+  "main": "dist/widget.js",
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "Allows fetching data from Sonagi CLIproxyAPI."
+  }
+}

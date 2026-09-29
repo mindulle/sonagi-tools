@@ -1,0 +1,19 @@
+{
+  "name": "@sonagi-tools/remark-playground",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.3",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.4"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@sonagi-bots/dispatcher-bot",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@sonagi-bots/shared": "workspace:*",
+    "axios": "^1.18.1",
+    "@sentry/node": "^10.66.0",
+    "@sentry/profiling-node": "^10.66.0"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}

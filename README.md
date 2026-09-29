@@ -22,6 +22,13 @@ Sonagi 생태계의 인프라 제어, CDN 관리, 그리고 유틸리티 접근�
 - Sonagi Eagle Gallery API 연동
 - 태그 기반 디자인 레퍼런스 즉시 검색
 
+## 🎨 Figma & FigJam Tools
+
+이 레포지토리는 인프라 봇 외에도 디자이너와 기획자를 위한 Figma/FigJam 확장 도구를 포함합니다.
+
+- **[Sonagi Brainstorm Widget](./apps/brainstorm-widget)**: 사내 LLM 프록시(`CLIproxyAPI`)와 연동하여 FigJam 환경에서 아이데이션을 돕는 위젯입니다. 생성된 아이디어를 캔버스에 직접 스티키 노트(Sticky Note)로 추출하는 기능을 제공합니다.
+- **[Sonagi Design Tools](./apps/figma-plugin)**: Asset Hub 등 사내 에셋과 연동되는 범용 Figma 플러그인입니다.
+
 ---
 
 ## 🚀 Quick Start
@@ -54,6 +61,9 @@ npm run dev
 
 ```text
 spells-bot/
+├── apps/
+│   ├── brainstorm-widget/    # FigJam LLM 브레인스토밍 위젯 (CLIproxyAPI 연동)
+│   └── figma-plugin/         # Figma / FigJam 다목적 디자인 도구 플러그인
 ├── src/
 │   ├── commands/              # 디스코드 슬래시 커맨드
 │   │   ├── infra/            # K3s, n8n 상태 제어

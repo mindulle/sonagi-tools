@@ -1,14 +1,14 @@
 {
-  "name": "sonagi-bots",
+  "name": "sonagi-tools",
   "version": "1.9.0",
   "description": "All-in-one Discord bot for design and development resources",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm run build -w @sonagi-bots/shared && npm run build -w @sonagi-bots/ops-bot -w @sonagi-bots/dev-bot -w @sonagi-bots/media-bot",
-    "lint": "eslint \"apps/*/src/**/*.ts\" \"packages/*/src/**/*.ts\"",
+    "build": "pnpm --filter @sonagi-bots/shared build && pnpm --filter @sonagi-bots/ops-bot --filter @sonagi-bots/dev-bot --filter @sonagi-bots/media-bot build && pnpm --filter @sonagi-tools/playground-core --filter @sonagi-tools/obsidian-playground-plugin --filter @sonagi-tools/remark-playground build",
+    "lint": "eslint \"apps/**/*.ts\" \"packages/**/*.ts\"",
     "test": "vitest run",
-    "dev": "concurrently -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" -n \"OPS,MEDIA,DEV\" \"npm run dev -w @sonagi-bots/ops-bot\" \"npm run dev -w @sonagi-bots/media-bot\" \"npm run dev -w @sonagi-bots/dev-bot\"",
-    "format": "prettier --write \"apps/*/src/**/*.ts\" \"packages/*/src/**/*.ts\""
+    "dev": "concurrently -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" -n \"OPS,MEDIA,DEV\" \"pnpm --filter @sonagi-bots/ops-bot dev\" \"pnpm --filter @sonagi-bots/media-bot dev\" \"pnpm --filter @sonagi-bots/dev-bot dev\"",
+    "format": "prettier --write \"apps/**/*.ts\" \"packages/**/*.ts\""
   },
   "keywords": [
     "discord",
@@ -66,9 +66,5 @@
     "*.{json,md,yml}": [
       "prettier --write"
     ]
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  }
 }
