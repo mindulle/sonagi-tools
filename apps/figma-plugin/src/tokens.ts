@@ -92,7 +92,7 @@ export function importTokens(payload: Record<string, any>) {
       const varName = flatVar.name;
       let figmaType: VariableResolvedDataType = 'STRING';
       if (flatVar.type === 'COLOR') figmaType = 'COLOR';
-      else if (flatVar.type === 'NUMBER' || flatVar.type === 'FLOAT') figmaType = 'FLOAT';
+      else if (flatVar.type === 'NUMBER' || flatVar.type === 'FLOAT' || flatVar.type === 'DIMENSION') figmaType = 'FLOAT';
       else if (flatVar.type === 'BOOLEAN') figmaType = 'BOOLEAN';
 
       let variable = varMap.get(varName);
@@ -101,16 +101,24 @@ export function importTokens(payload: Record<string, any>) {
         varMap.set(varName, variable);
       }
 
-      const val = flatVar.value;
+      let val = flatVar.value;
+
+      const targetType = variable.resolvedType;
+
       if (typeof val === 'string' && val.startsWith('{') && val.endsWith('}')) {
         // Alias
         aliasQueue.push({ variable, aliasString: val.slice(1, -1), modeId: defaultModeId });
       } else {
         // Raw value
-        if (figmaType === 'COLOR' && typeof val === 'string') {
+        if (targetType === 'COLOR' && typeof val === 'string') {
           variable.setValueForMode(defaultModeId, hexToRgba(val));
-        } else {
+        } else if (targetType === 'FLOAT') {
+          if (typeof val === 'string') val = parseFloat(val) || 0;
           variable.setValueForMode(defaultModeId, val);
+        } else if (targetType === 'BOOLEAN') {
+          variable.setValueForMode(defaultModeId, Boolean(val));
+        } else {
+          variable.setValueForMode(defaultModeId, String(val));
         }
       }
     }
