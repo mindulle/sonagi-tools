@@ -111,7 +111,12 @@ export function importTokens(payload: Record<string, any>) {
       } else {
         // Raw value
         if (targetType === 'COLOR' && typeof val === 'string') {
-          variable.setValueForMode(defaultModeId, hexToRgba(val));
+          const rgba = hexToRgba(val);
+          if (rgba) {
+            variable.setValueForMode(defaultModeId, rgba);
+          } else {
+            console.warn(`Skipping invalid or unsupported color value: ${val} for ${varName}`);
+          }
         } else if (targetType === 'FLOAT') {
           if (typeof val === 'string') val = parseFloat(val) || 0;
           variable.setValueForMode(defaultModeId, val);
