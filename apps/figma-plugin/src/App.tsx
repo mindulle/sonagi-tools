@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TokensTab } from './components/TokensTab';
+import { IconsTab } from './components/IconsTab';
 
 const ASSETS_API_URL = 'https://assets.sonagi.space';
 const KARAKEEP_API_URL = 'https://ref.sonagi.space/api/v1';
@@ -56,7 +57,7 @@ const AuthImage = ({ assetId, alt }: { assetId: string, alt: string }) => {
 };
 
 function App() {
-  const [tab, setTab] = useState<'assets' | 'references' | 'ai' | 'tokens'>('assets');
+  const [tab, setTab] = useState<'assets' | 'references' | 'ai' | 'tokens' | 'icons'>('assets');
   const [assetItems, setAssetItems] = useState<AssetHubItem[]>([]);
   const [bookmarkItems, setBookmarkItems] = useState<BookmarkItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -243,6 +244,12 @@ Format MUST be strictly a JSON array of objects with { "name": string, "w": numb
           Tokens
         </button>
         <button 
+          className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'icons' ? 'border-b-2 border-orange-500 text-orange-600' : 'text-gray-500'}`}
+          onClick={() => { setTab('icons'); }}
+        >
+          Icons
+        </button>
+        <button 
           className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'ai' ? 'border-b-2 border-purple-500 text-purple-600 flex items-center gap-1' : 'text-gray-500 flex items-center gap-1'}`}
           onClick={() => { setTab('ai'); }}
         >
@@ -299,6 +306,7 @@ Format MUST be strictly a JSON array of objects with { "name": string, "w": numb
         )}
 
         {tab === 'tokens' && <TokensTab />}
+        {tab === 'icons' && <IconsTab />}
 
         {/* --- ASSETS / REFS TAB --- */}
         {(tab === 'assets' || tab === 'references') && (

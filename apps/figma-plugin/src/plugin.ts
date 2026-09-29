@@ -106,5 +106,48 @@ figma.ui.onmessage = async (msg) => {
     } catch (e: any) {
       figma.ui.postMessage({ type: 'error', message: e.message });
     }
+  } else if (msg.type === 'export-svgs') {
+    try {
+      const selection = figma.currentPage.selection;
+      let nodesToExport: SceneNode[] = [];
+
+      if (selection.length > 0) {
+        nodesToExport = selection.filter(
+          (n) =>
+            n.type === 'COMPONENT' ||
+            n.type === 'INSTANCE' ||
+            n.type === 'FRAME' ||
+            n.type === 'VECTOR'
+        ) as SceneNode[];
+      } else {
+        nodesToExport = figma.currentPage.findAll((n) => n.type === 'COMPONENT') as SceneNode[];
+      }
+
+      if (nodesToExport.length === 0) {
+        throw new Error('No components found to export. Please select the icons.');
+      }
+
+      const results = [];
+      for (const node of nodesToExport) {
+        const svgBytes = await node.exportAsync({ format: 'SVG' });
+        let svgString = '';
+        for (let i = 0; i < svgBytes.length; i++) {
+          svgString += String.fromCharCode(svgBytes[i]);
+        }
+
+        // Clean name to be a valid React Component name (e.g. "Icon / Home" -> "IconHome")
+        let cleanName = node.name.replace(/[^a-zA-Z0-9]/g, '');
+        // Capitalize first letter just in case
+        cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+        // Fallback name if it becomes empty
+        if (!cleanName) cleanName = 'Icon' + Math.floor(Math.random() * 1000);
+
+        results.push({ name: cleanName, svg: svgString });
+      }
+
+      figma.ui.postMessage({ type: 'export-svgs-result', payload: results });
+    } catch (e: any) {
+      figma.ui.postMessage({ type: 'error', message: e.message });
+    }
   }
 };

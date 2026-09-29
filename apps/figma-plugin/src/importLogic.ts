@@ -1,4 +1,7 @@
-export function hexToRgba(hex: string): RGBA {
+export function hexToRgba(hex: string): { r: number; g: number; b: number; a: number } | null {
+  if (typeof hex !== 'string' || (!hex.startsWith('#') && !/^[0-9A-F]{3,8}$/i.test(hex))) {
+    return null; // Not a valid hex color
+  }
   let h = hex.replace('#', '');
   if (h.length === 3)
     h = h
@@ -12,6 +15,11 @@ export function hexToRgba(hex: string): RGBA {
   if (h.length === 8) {
     a = parseInt(h.substring(6, 8), 16) / 255;
   }
+
+  if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
+    return null;
+  }
+
   return { r, g, b, a };
 }
 
