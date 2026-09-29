@@ -1,7 +1,7 @@
 import { Plugin } from 'obsidian';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { SonagiPlayground } from '@sonagi-tools/playground-core';
+import { SonagiPlayground, SonagiJupyterPlayground } from '@sonagi-tools/playground-core';
 
 export default class SonagiPlaygroundPlugin extends Plugin {
   onload() {
@@ -9,6 +9,10 @@ export default class SonagiPlaygroundPlugin extends Plugin {
 
     this.registerMarkdownCodeBlockProcessor('sonagi-playground', (source, el) => {
       this.processPlaygroundCodeBlock(source, el);
+    });
+
+    this.registerMarkdownCodeBlockProcessor('sonagi-jupyter', (source, el) => {
+      this.processJupyterCodeBlock(source, el);
     });
   }
 
@@ -19,7 +23,6 @@ export default class SonagiPlaygroundPlugin extends Plugin {
   private processPlaygroundCodeBlock(source: string, el: HTMLElement) {
     let config;
     try {
-      // For MVP, we assume the source string inside the codeblock is a valid JSON config
       config = JSON.parse(source);
     } catch (e: any) {
       el.createEl('div', {
@@ -31,8 +34,6 @@ export default class SonagiPlaygroundPlugin extends Plugin {
     }
 
     const container = el.createEl('div', { cls: 'sonagi-playground-wrapper' });
-
-    // Render the generic React playground component into Obsidian's DOM
     const root = createRoot(container);
     root.render(
       React.createElement(SonagiPlayground, {
@@ -45,9 +46,29 @@ export default class SonagiPlaygroundPlugin extends Plugin {
         editorHeight: config.editorHeight || 400,
       })
     );
+  }
 
-    // Optional: We can hook into Obsidian's node unloading to properly unmount React
-    // ctx.addChild is the standard way to handle cleanup in PostProcessors, but requires wrapping in a MarkdownRenderChild.
-    // For simplicity in this early stage, we just render it.
+  private processJupyterCodeBlock(source: string, el: HTMLElement) {
+    let notebook;
+    try {
+      notebook = JSON.parse(source);
+    } catch (e: any) {
+      el.createEl('div', {
+        text: `[sonagi-jupyter] Failed to parse JSON config: ${e.message}`,
+        cls: 'jupyter-error',
+        attr: { style: 'color: red; padding: 10px; border: 1px solid red;' },
+      });
+      return;
+    }
+
+    const container = el.createEl('div', { cls: 'sonagi-jupyter-wrapper' });
+    const root = createRoot(container);
+    root.render(
+      React.createElement(SonagiJupyterPlayground, {
+        notebook,
+        executeEndpoint: notebook.executeEndpoint || '/api/execute',
+        theme: notebook.theme || 'dark',
+      })
+    );
   }
 }
