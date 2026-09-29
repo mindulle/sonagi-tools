@@ -15,11 +15,11 @@ export function hexToRgba(hex: string): { r: number; g: number; b: number; a: nu
   if (h.length === 8) {
     a = parseInt(h.substring(6, 8), 16) / 255;
   }
-  
+
   if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
     return null;
   }
-  
+
   return { r, g, b, a };
 }
 

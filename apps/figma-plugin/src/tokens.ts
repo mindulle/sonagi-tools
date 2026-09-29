@@ -92,7 +92,12 @@ export function importTokens(payload: Record<string, any>) {
       const varName = flatVar.name;
       let figmaType: VariableResolvedDataType = 'STRING';
       if (flatVar.type === 'COLOR') figmaType = 'COLOR';
-      else if (flatVar.type === 'NUMBER' || flatVar.type === 'FLOAT' || flatVar.type === 'DIMENSION') figmaType = 'FLOAT';
+      else if (
+        flatVar.type === 'NUMBER' ||
+        flatVar.type === 'FLOAT' ||
+        flatVar.type === 'DIMENSION'
+      )
+        figmaType = 'FLOAT';
       else if (flatVar.type === 'BOOLEAN') figmaType = 'BOOLEAN';
 
       let variable = varMap.get(varName);

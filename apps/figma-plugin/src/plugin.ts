@@ -110,13 +110,17 @@ figma.ui.onmessage = async (msg) => {
     try {
       const selection = figma.currentPage.selection;
       let nodesToExport: SceneNode[] = [];
-      
+
       if (selection.length > 0) {
-        nodesToExport = selection.filter(n => 
-          n.type === 'COMPONENT' || n.type === 'INSTANCE' || n.type === 'FRAME' || n.type === 'VECTOR'
+        nodesToExport = selection.filter(
+          (n) =>
+            n.type === 'COMPONENT' ||
+            n.type === 'INSTANCE' ||
+            n.type === 'FRAME' ||
+            n.type === 'VECTOR'
         ) as SceneNode[];
       } else {
-        nodesToExport = figma.currentPage.findAll(n => n.type === 'COMPONENT') as SceneNode[];
+        nodesToExport = figma.currentPage.findAll((n) => n.type === 'COMPONENT') as SceneNode[];
       }
 
       if (nodesToExport.length === 0) {
@@ -130,7 +134,7 @@ figma.ui.onmessage = async (msg) => {
         for (let i = 0; i < svgBytes.length; i++) {
           svgString += String.fromCharCode(svgBytes[i]);
         }
-        
+
         // Clean name to be a valid React Component name (e.g. "Icon / Home" -> "IconHome")
         let cleanName = node.name.replace(/[^a-zA-Z0-9]/g, '');
         // Capitalize first letter just in case
