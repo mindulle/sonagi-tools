@@ -28,7 +28,8 @@ Sentry.init({
 
 const PAPERCLIP_API_URL = process.env.PAPERCLIP_API_URL || 'http://localhost:3100/api';
 const PAPERCLIP_API_KEY = process.env.PAPERCLIP_API_KEY || ''; // If required
-const PAPERCLIP_COMPANY_ID = process.env.PAPERCLIP_COMPANY_ID || '3fa0dfa2-9f91-4002-8012-ac598bbb4761';
+const PAPERCLIP_COMPANY_ID =
+  process.env.PAPERCLIP_COMPANY_ID || '3fa0dfa2-9f91-4002-8012-ac598bbb4761';
 const OPENHANDS_API_URL = process.env.OPENHANDS_API_URL || 'http://100.82.121.40:3000/api'; // devops machine
 
 const POLL_INTERVAL_MS = 60 * 1000; // 1 minute
@@ -61,7 +62,7 @@ function removeActiveTask(issueId: string) {
 async function checkActiveTasks() {
   const tasks = getActiveTasks();
   const issueIds = Object.keys(tasks);
-  
+
   if (issueIds.length === 0) return;
   console.log(`[Dispatcher] Checking status for ${issueIds.length} active OpenHands task(s)...`);
 
@@ -72,24 +73,35 @@ async function checkActiveTasks() {
       const response = await axios.get(`${OPENHANDS_API_URL}/conversations/${conversationId}`, {
         timeout: 10000,
         headers: {
-          ...(process.env.OPENHANDS_API_KEY ? { Authorization: `Bearer ${process.env.OPENHANDS_API_KEY}` } : {})
-        }
+          ...(process.env.OPENHANDS_API_KEY
+            ? { Authorization: `Bearer ${process.env.OPENHANDS_API_KEY}` }
+            : {}),
+        },
       });
-      
+
       const status = response.data?.conversation_status || response.data?.status;
       if (status === 'STOPPED' || status === 'FINISHED') {
-        console.log(`[Dispatcher] Conversation ${conversationId} finished. Marking issue ${issueId} as done.`);
+        console.log(
+          `[Dispatcher] Conversation ${conversationId} finished. Marking issue ${issueId} as done.`
+        );
         // Mark issue as done
-        await axios.patch(`${PAPERCLIP_API_URL}/issues/${issueId}`, {
-          status: 'done'
-        }, {
-          timeout: 5000,
-          headers: { Authorization: `Bearer ${PAPERCLIP_API_KEY}` }
-        });
+        await axios.patch(
+          `${PAPERCLIP_API_URL}/issues/${issueId}`,
+          {
+            status: 'done',
+          },
+          {
+            timeout: 5000,
+            headers: { Authorization: `Bearer ${PAPERCLIP_API_KEY}` },
+          }
+        );
         removeActiveTask(issueId);
       }
     } catch (error: any) {
-      console.error(`[Dispatcher] Failed to check status for conversation ${conversationId}:`, error?.response?.data || error.message);
+      console.error(
+        `[Dispatcher] Failed to check status for conversation ${conversationId}:`,
+        error?.response?.data || error.message
+      );
     }
   }
 }
@@ -98,13 +110,16 @@ async function pollPaperclipQueue() {
   console.log('[Dispatcher] Polling Paperclip for To-Do issues...');
   try {
     // 1. Fetch To Do issues labeled 'openhands'
-    const response = await axios.get(`${PAPERCLIP_API_URL}/companies/${PAPERCLIP_COMPANY_ID}/issues`, {
-      headers: { Authorization: `Bearer ${PAPERCLIP_API_KEY}` },
-      params: { 
-        status: 'todo',
-        label: 'openhands'
+    const response = await axios.get(
+      `${PAPERCLIP_API_URL}/companies/${PAPERCLIP_COMPANY_ID}/issues`,
+      {
+        headers: { Authorization: `Bearer ${PAPERCLIP_API_KEY}` },
+        params: {
+          status: 'todo',
+          label: 'openhands',
+        },
       }
-    });
+    );
 
     const issues = response.data || [];
     console.log(`[Dispatcher] Found ${issues.length} 'todo' issues for OpenHands.`);
@@ -115,14 +130,20 @@ async function pollPaperclipQueue() {
       // 2. Dispatch to OpenHands
       try {
         console.log(`[Dispatcher] Dispatching ${issue.identifier} to OpenHands...`);
-        const ohResponse = await axios.post(`${OPENHANDS_API_URL}/conversations`, {
-          initial_user_msg: `Issue ${issue.identifier}: ${issue.title}\n\n${issue.description}`
-        }, {
-          timeout: 10000,
-          headers: { 
-            ...(process.env.OPENHANDS_API_KEY ? { Authorization: `Bearer ${process.env.OPENHANDS_API_KEY}` } : {})
+        const ohResponse = await axios.post(
+          `${OPENHANDS_API_URL}/conversations`,
+          {
+            initial_user_msg: `Issue ${issue.identifier}: ${issue.title}\n\n${issue.description}`,
+          },
+          {
+            timeout: 10000,
+            headers: {
+              ...(process.env.OPENHANDS_API_KEY
+                ? { Authorization: `Bearer ${process.env.OPENHANDS_API_KEY}` }
+                : {}),
+            },
           }
-        });
+        );
 
         const conversationId = ohResponse.data?.conversation_id || ohResponse.data?.id;
         if (!conversationId) {
@@ -134,22 +155,34 @@ async function pollPaperclipQueue() {
 
         // 3. Mark issue as in_progress and assign to human to avoid bot interception
         console.log(`[Dispatcher] Marking ${issue.identifier} as in_progress...`);
-        await axios.patch(`${PAPERCLIP_API_URL}/issues/${issue.id}`, {
-          status: 'in_progress',
-          assigneeUserId: issue.createdByUserId || 'DsiBvgqTrJMAzDuHz3jA9NrBtHwGQaYW'
-        }, {
-          timeout: 5000,
-          headers: { Authorization: `Bearer ${PAPERCLIP_API_KEY}` }
-        });
-        
-        console.log(`[Dispatcher] Successfully dispatched ${issue.identifier} (Conversation: ${conversationId}).`);
+        await axios.patch(
+          `${PAPERCLIP_API_URL}/issues/${issue.id}`,
+          {
+            status: 'in_progress',
+            assigneeUserId: issue.createdByUserId || 'DsiBvgqTrJMAzDuHz3jA9NrBtHwGQaYW',
+          },
+          {
+            timeout: 5000,
+            headers: { Authorization: `Bearer ${PAPERCLIP_API_KEY}` },
+          }
+        );
+
+        console.log(
+          `[Dispatcher] Successfully dispatched ${issue.identifier} (Conversation: ${conversationId}).`
+        );
       } catch (dispatchError: any) {
-        console.error(`[Dispatcher] Failed to dispatch ${issue.identifier}:`, dispatchError?.response?.data || dispatchError.message);
+        console.error(
+          `[Dispatcher] Failed to dispatch ${issue.identifier}:`,
+          dispatchError?.response?.data || dispatchError.message
+        );
         Sentry.captureException(dispatchError);
       }
     }
   } catch (error: any) {
-    console.error('[Dispatcher] Error polling Paperclip API:', error?.response?.data || error.message);
+    console.error(
+      '[Dispatcher] Error polling Paperclip API:',
+      error?.response?.data || error.message
+    );
     Sentry.captureException(error);
   }
 }

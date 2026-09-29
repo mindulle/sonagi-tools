@@ -1,6 +1,6 @@
 import { flattenJson, hexToRgba } from './importLogic';
 
-function rgbaToHex({r, g, b, a}: RGBA) {
+function rgbaToHex({ r, g, b, a }: RGBA) {
   const toHex = (value: number) => {
     const hex = Math.round(value * 255).toString(16);
     return hex.length === 1 ? '0' + hex : hex;
@@ -14,32 +14,32 @@ function rgbaToHex({r, g, b, a}: RGBA) {
 export function exportTokens() {
   const collections = figma.variables.getLocalVariableCollections();
   const variables = figma.variables.getLocalVariables();
-  
+
   const result: Record<string, any> = {};
 
   for (const collection of collections) {
     const collectionData: any = {};
     const defaultModeId = collection.modes[0].modeId;
-    
-    const collectionVars = variables.filter(v => v.variableCollectionId === collection.id);
-    
+
+    const collectionVars = variables.filter((v) => v.variableCollectionId === collection.id);
+
     for (const variable of collectionVars) {
       const parts = variable.name.split('/');
       let current = collectionData;
-      
+
       for (let i = 0; i < parts.length - 1; i++) {
         const part = parts[i];
         if (!current[part]) current[part] = {};
         current = current[part];
       }
-      
+
       const leafName = parts[parts.length - 1];
       const val = variable.valuesByMode[defaultModeId];
-      
+
       let finalVal: any = val;
       let typeStr = variable.resolvedType.toLowerCase();
       if (typeStr === 'float') typeStr = 'number';
-      
+
       if (val !== null && typeof val === 'object') {
         if ('type' in val && val.type === 'VARIABLE_ALIAS') {
           const aliasVar = figma.variables.getVariableById(val.id);
@@ -51,24 +51,24 @@ export function exportTokens() {
           typeStr = 'color';
         }
       }
-      
+
       current[leafName] = {
         $value: finalVal,
-        $type: typeStr
+        $type: typeStr,
       };
     }
-    
+
     result[collection.name] = collectionData;
   }
-  
+
   return result;
 }
 
 export function importTokens(payload: Record<string, any>) {
-  console.log("Importing tokens", payload);
+  console.log('Importing tokens', payload);
   const figmaCollections = figma.variables.getLocalVariableCollections();
   const figmaVariables = figma.variables.getLocalVariables();
-  
+
   const varMap = new Map<string, Variable>(); // key: name (with slashes), value: Variable
 
   // Pre-fill existing variables
@@ -77,14 +77,14 @@ export function importTokens(payload: Record<string, any>) {
   }
 
   // Pass 1: Create collections and variables, and set raw values (non-alias)
-  const aliasQueue: { variable: Variable, aliasString: string, modeId: string }[] = [];
+  const aliasQueue: { variable: Variable; aliasString: string; modeId: string }[] = [];
 
   for (const [collectionName, collectionData] of Object.entries(payload)) {
-    let collection = figmaCollections.find(c => c.name === collectionName);
+    let collection = figmaCollections.find((c) => c.name === collectionName);
     if (!collection) {
       collection = figma.variables.createVariableCollection(collectionName);
     }
-    
+
     const defaultModeId = collection.modes[0].modeId;
     const flatVars = flattenJson(collectionData);
 
@@ -127,5 +127,5 @@ export function importTokens(payload: Record<string, any>) {
     }
   }
 
-  figma.notify("Tokens successfully imported and updated!");
+  figma.notify('Tokens successfully imported and updated!');
 }

@@ -233,9 +233,7 @@ export const playCommand: Command = {
             const embed = new EmbedBuilder()
               .setColor(Colors.SUCCESS)
               .setTitle('📦 프로젝트 샌드박스')
-              .setDescription(
-                `\`${examplePath}\` 프로젝트가 샌드박스 환경에 세팅되었습니다!`
-              )
+              .setDescription(`\`${examplePath}\` 프로젝트가 샌드박스 환경에 세팅되었습니다!`)
               .addFields(
                 { name: 'Preview URL', value: data.preview_url },
                 ...(data.sandbox_url ? [{ name: 'Sandbox URL', value: data.sandbox_url }] : [])
