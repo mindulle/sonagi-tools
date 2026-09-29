@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { SonagiPlayground } from '@sonagi-tools/playground-core';
 
 export default class SonagiPlaygroundPlugin extends Plugin {
-    async onload() {
+    onload() {
         console.log('Loading Sonagi Playground Plugin');
 
         this.registerMarkdownCodeBlockProcessor('sonagi-playground', (source, el) => {
@@ -12,7 +12,7 @@ export default class SonagiPlaygroundPlugin extends Plugin {
         });
     }
 
-    async unload() {
+    unload() {
         console.log('Unloading Sonagi Playground Plugin');
     }
 

@@ -99,7 +99,7 @@ figma.ui.onmessage = async (msg) => {
   }
   else if (msg.type === 'export-tokens') {
     try {
-      const tokens = await exportTokens();
+      const tokens = exportTokens();
       figma.ui.postMessage({ type: 'export-tokens-result', payload: tokens });
     } catch (e: any) {
       figma.ui.postMessage({ type: 'error', message: e.message });
@@ -107,7 +107,7 @@ figma.ui.onmessage = async (msg) => {
   }
   else if (msg.type === 'import-tokens') {
     try {
-      await importTokens(msg.payload);
+      importTokens(msg.payload);
     } catch (e: any) {
       figma.ui.postMessage({ type: 'error', message: e.message });
     }

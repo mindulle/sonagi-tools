@@ -11,7 +11,7 @@ function rgbaToHex({r, g, b, a}: RGBA) {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-export async function exportTokens() {
+export function exportTokens() {
   const collections = figma.variables.getLocalVariableCollections();
   const variables = figma.variables.getLocalVariables();
   
@@ -64,7 +64,7 @@ export async function exportTokens() {
   return result;
 }
 
-export async function importTokens(payload: Record<string, any>) {
+export function importTokens(payload: Record<string, any>) {
   console.log("Importing tokens", payload);
   const figmaCollections = figma.variables.getLocalVariableCollections();
   const figmaVariables = figma.variables.getLocalVariables();

@@ -156,13 +156,13 @@ async function pollPaperclipQueue() {
 
 // Main Loop
 console.log('🚀 OpenHands PM2 Dispatcher Bot Started!');
-setInterval(async () => {
-  await pollPaperclipQueue();
-  await checkActiveTasks();
+setInterval(() => {
+  void pollPaperclipQueue();
+  void checkActiveTasks();
 }, POLL_INTERVAL_MS);
 
 // Run immediately on start
-(async () => {
+void (async () => {
   await pollPaperclipQueue();
   await checkActiveTasks();
 })();
