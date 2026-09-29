@@ -49,7 +49,18 @@ export const SonagiJupyterPlayground: React.FC<SonagiJupyterProps> = ({
         body: JSON.stringify({ language: 'python', code: codeToRun })
       });
       
-      const data = await res.json() as any;
+      if (!res.ok) {
+        throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
+      }
+
+      // Check if there is a body to parse before calling .json()
+      const text = await res.text();
+      let data: any = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (err) {
+        throw new Error(`Invalid JSON response: ${text.slice(0, 50)}...`);
+      }
       
       // Update the specific cell's output
       setCells(prev => prev.map((cell, i) => {
