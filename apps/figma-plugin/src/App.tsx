@@ -160,29 +160,60 @@ function App() {
 
   // ---------------- AI Functions ----------------
 
-  const callMockInternalLLM = async (prompt: string, type: 'search' | 'wireframe' | 'summary') => {
-    // In real usage, fetch() to CLIproxyAPI
+  const callRealLLM = async (prompt: string, type: 'search' | 'wireframe' | 'summary') => {
     setAiLoading(true);
-    await new Promise(r => setTimeout(r, 1500)); // mock network delay
-    setAiLoading(false);
 
-    if (type === 'search') {
-      setSearch(prompt);
-      setTab('references');
-      fetchBookmarks(prompt);
-    } 
-    else if (type === 'summary') {
-      const resultText = `✨ AI 요약: \n- 총 ${selectedTexts.length}개의 노트 분석\n- 핵심 키워드: ${selectedTexts.join(', ').substring(0, 30)}...`;
-      parent.postMessage({ pluginMessage: { type: 'create-sticky', text: resultText } }, '*');
-    }
-    else if (type === 'wireframe') {
-      // Mock generated JSON layout
-      const layout = [
-        { name: 'Header / Nav', w: 400, h: 60 },
-        { name: 'Hero Image Area', w: 400, h: 250 },
-        { name: 'CTA Button', w: 200, h: 50 }
-      ];
-      parent.postMessage({ pluginMessage: { type: 'create-wireframe', layout } }, '*');
+    try {
+      let systemPrompt = '';
+      if (type === 'search') {
+        systemPrompt = 'You are a search assistant. Extract the single most important keyword from the user text to search in the bookmark database. Reply ONLY with the keyword, nothing else.';
+      } else if (type === 'summary') {
+        systemPrompt = 'You are a summarization assistant. Summarize the user text into 2-3 concise bullet points. Keep it short and use Korean.';
+      } else if (type === 'wireframe') {
+        systemPrompt = `You are a UI designer. Generate a JSON array of wireframe boxes based on the user prompt. 
+Format MUST be strictly a JSON array of objects with { "name": string, "w": number, "h": number }. Do not include markdown blocks. Example: [{"name":"Header","w":400,"h":60}]`;
+      }
+
+      const res = await fetch('https://llm.lab.sonagi.space/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gemini-3.7-flash-high',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ]
+        })
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const data = await res.json();
+      const reply = data?.choices?.[0]?.message?.content?.trim() || '';
+
+      if (type === 'search') {
+        setSearch(reply);
+        setTab('references');
+        fetchBookmarks(reply);
+      } 
+      else if (type === 'summary') {
+        const resultText = `✨ AI 요약: \n${reply}`;
+        parent.postMessage({ pluginMessage: { type: 'create-sticky', text: resultText } }, '*');
+      }
+      else if (type === 'wireframe') {
+        let layout;
+        try {
+          layout = JSON.parse(reply.replace(/```json/g, '').replace(/```/g, '').trim());
+        } catch (e) {
+          throw new Error('Failed to parse wireframe JSON');
+        }
+        parent.postMessage({ pluginMessage: { type: 'create-wireframe', layout } }, '*');
+      }
+    } catch (err: any) {
+      console.error('LLM API Error:', err);
+      parent.postMessage({ pluginMessage: { type: 'create-sticky', text: `❌ AI Error: ${err.message}` } }, '*');
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -233,14 +264,14 @@ function App() {
             <div className="flex flex-col gap-2">
               <button 
                 disabled={selectedTexts.length === 0 || aiLoading}
-                onClick={() => callMockInternalLLM(selectedTexts[0], 'search')}
+                onClick={() => callRealLLM(selectedTexts[0], 'search')}
                 className="bg-white border border-gray-300 text-gray-700 p-2 rounded text-sm hover:bg-gray-50 disabled:opacity-50 text-left"
               >
                 🔎 선택한 텍스트로 <span className="font-bold">레퍼런스 찾기</span>
               </button>
               <button 
                 disabled={selectedTexts.length === 0 || aiLoading}
-                onClick={() => callMockInternalLLM(selectedTexts.join('\n'), 'summary')}
+                onClick={() => callRealLLM(selectedTexts.join('\n'), 'summary')}
                 className="bg-white border border-gray-300 text-gray-700 p-2 rounded text-sm hover:bg-gray-50 disabled:opacity-50 text-left"
               >
                 📝 선택한 내용 <span className="font-bold">요약본 생성</span>
@@ -258,7 +289,7 @@ function App() {
               />
               <button 
                 disabled={aiLoading || !aiPrompt.trim()}
-                onClick={() => callMockInternalLLM(aiPrompt, 'wireframe')}
+                onClick={() => callRealLLM(aiPrompt, 'wireframe')}
                 className="w-full bg-purple-600 text-white p-2 rounded text-sm font-bold hover:bg-purple-700 disabled:opacity-50"
               >
                 {aiLoading ? 'AI 생성 중...' : '✨ 와이어프레임 자동 생성'}
