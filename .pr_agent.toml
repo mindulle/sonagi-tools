@@ -1,0 +1,10 @@
+[pr_reviewer]
+extra_instructions = """
+[Sonagi Architecture Convention Check]
+이 레포지토리는 sonagi-tools(에이전트 스크립트 및 인프라 유틸리티)입니다.
+PR 리뷰 시 아래 규칙을 검사하여 위반 시 명확하게 지적하세요.
+
+1. 시크릿 보안 (Secret Ops - CRITICAL): 소스코드 내부(Python, Bash 등)에 API Key, 토큰, 비밀번호 등이 하드코딩되어 있는지 검사하세요. 모든 시크릿은 반드시 환경변수나 Secret Store를 통해 주입받아야 합니다.
+2. 환경 격리: 글로벌 환경을 오염시키는 `pip install` 등이 스크립트에 포함되어 있는지 확인하세요. Python 스크립트는 가상환경(venv)을 사용하도록 권장되어야 합니다.
+3. Ansible IaC 배포 원칙: 인프라 구성이 필요한 경우, 매뉴얼 쉘 스크립트보다는 Ansible 역할(Role)이나 Playbook 형태로 작성되도록 유도하세요.
+"""
