@@ -1,6 +1,6 @@
 {
   "name": "sonagi-tools",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "All-in-one Discord bot for design and development resources",
   "main": "dist/index.js",
   "scripts": {
