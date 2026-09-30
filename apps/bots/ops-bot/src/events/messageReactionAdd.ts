@@ -10,7 +10,6 @@ import axios from 'axios';
 import { logger } from '@sonagi-bots/shared';
 import { NotionService } from '../services/notion';
 
-const WEB_CLIP_CHANNEL_ID = process.env.WEB_CLIP_CHANNEL_ID || '1519250071764336650';
 const GALLERY_SERVER_URL = process.env.GALLERY_SERVER_URL || 'http://localhost:8000';
 const DESIGN_CLIP_CHANNEL_ID = process.env.DESIGN_CLIP_CHANNEL_ID || '1528620974948225095';
 
@@ -23,71 +22,9 @@ export function registerMessageReactionAddEvent(client: Client): void {
         if (user.id === client.user?.id) return;
 
         // ----------------------------------------------------
-        // Web Clip 자동화 로직
+        // Web Clip 자동화 로직 (수동 리액션 기능 제거)
+        // -> messageCreate.ts에서 링크 업로드 시 자동으로 처리하도록 변경되었습니다.
         // ----------------------------------------------------
-        if (reaction.emoji.name === '✅' && reaction.message.channelId === WEB_CLIP_CHANNEL_ID) {
-          try {
-            const message = reaction.message.partial
-              ? await reaction.message.fetch()
-              : reaction.message;
-            const fullUser = user.partial ? await user.fetch() : user;
-
-            const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL_WEB_CLIP;
-            if (!n8nWebhookUrl) {
-              logger.error('N8N_WEBHOOK_URL_WEB_CLIP environment variable is not set');
-              await message.reply('❌ n8n 웹훅 URL 설정이 누락되어 클립을 저장할 수 없습니다.');
-              return;
-            }
-
-            const payload = {
-              content: message.content,
-              author: fullUser.username,
-              channelId: message.channelId,
-              messageId: message.id,
-            };
-
-            logger.info(`Sending web clip payload to n8n for message ${message.id}`);
-
-            const response = await fetch(n8nWebhookUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-              logger.error(
-                `n8n webhook returned status: ${response.status} ${response.statusText}`
-              );
-              await message.reply(
-                `❌ 웹 클립 전달 중 오류가 발생했습니다. (상태 코드: ${response.status})`
-              );
-            } else {
-              logger.info('Successfully forwarded clip to n8n webhook');
-              await message.reply('✅ 웹 클립이 성공적으로 전달되었습니다!');
-            }
-          } catch (error) {
-            logger.error('Error handling web clip reaction', error);
-            const msg = reaction.message.partial
-              ? await reaction.message.fetch()
-              : reaction.message;
-            await msg.reply('❌ 웹 클립 처리 중 에러가 발생했습니다.');
-          }
-          return;
-        }
-
-        if (reaction.emoji.name === '❌' && reaction.message.channelId === WEB_CLIP_CHANNEL_ID) {
-          try {
-            const message = reaction.message.partial
-              ? await reaction.message.fetch()
-              : reaction.message;
-
-            await message.reply('🗑️ 해당 클립 수집이 취소(스킵)되었습니다.');
-            // 추가 액션이 필요하면 구현 (예: 메시지 삭제 또는 리액션 초기화)
-          } catch (error) {
-            logger.error('Error handling web clip cancel reaction', error);
-          }
-          return;
-        }
 
         // ----------------------------------------------------
         // 🎨 디자인 클립 자동화 로직
