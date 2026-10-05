@@ -1,0 +1,27 @@
+{
+  "name": "@sonagi/obsidian-plugin",
+  "version": "1.0.0",
+  "description": "Sonagi Obsidian plugin boilerplate",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "BUILD_ENV=production node esbuild.config.mjs"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin"
+  ],
+  "author": "Sonagi",
+  "license": "MIT",
+  "dependencies": {
+    "obsidian": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "builtin-modules": "^5.4.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "0.20.2",
+    "tslib": "2.6.2",
+    "typescript": "5.4.5"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Sonagi Figma Boilerplate",
+  "id": "sonagi-figma-boilerplate",
+  "api": "1.0.0",
+  "main": "dist/plugin.js",
+  "ui": "dist/index.html",
+  "editorType": ["figma", "figjam"],
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

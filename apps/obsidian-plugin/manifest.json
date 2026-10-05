@@ -1,0 +1,10 @@
+{
+  "id": "sonagi-obsidian-plugin",
+  "name": "Sonagi Obsidian Plugin",
+  "version": "1.0.0",
+  "minAppVersion": "1.5.0",
+  "description": "A boilerplate for Sonagi Obsidian tools.",
+  "author": "Sonagi",
+  "authorUrl": "",
+  "isDesktopOnly": false
+}
