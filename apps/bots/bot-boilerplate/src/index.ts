@@ -26,9 +26,7 @@ async function main() {
       partials: [Partials.Message, Partials.User],
     });
 
-    const commands: CommandMap = new Map([
-      [pingCommand.data.name, pingCommand],
-    ]);
+    const commands: CommandMap = new Map([[pingCommand.data.name, pingCommand]]);
 
     logger.info(`Registered ${commands.size} commands`);
 
