@@ -28,6 +28,9 @@ Sonagi 생태계의 인프라 제어, CDN 관리, 그리고 유틸리티 접근�
 
 - **[Sonagi Brainstorm Widget](./apps/brainstorm-widget)**: 사내 LLM 프록시(`CLIproxyAPI`)와 연동하여 FigJam 환경에서 아이데이션을 돕는 위젯입니다. 생성된 아이디어를 캔버스에 직접 스티키 노트(Sticky Note)로 추출하는 기능을 제공합니다.
 - **[Sonagi Design Tools](./apps/figma-plugin)**: Asset Hub 등 사내 에셋과 연동되는 범용 Figma 플러그인입니다.
+- **[Sonagi Figma Boilerplate](./apps/figma-plugin-boilerplate)**: 새로운 피그마 플러그인을 빠르게 만들기 위한 순수 템플릿(React+Vite)입니다.
+- **[Sonagi Obsidian Plugin](./apps/obsidian-plugin)**: PKM(지식 관리) 환경 확장을 위한 옵시디언 플러그인 개발 보일러플레이트입니다.
+- **[Sonagi Bot Boilerplate](./apps/bots/bot-boilerplate)**: 새로운 디스코드 봇을 만들기 위한 순수 템플릿입니다.
 
 ---
 
@@ -82,3 +85,9 @@ spells-bot/
 │   └── deploy-commands.ts    # 커맨드 전역 배포 스크립트
 └── package.json
 ```
+
+### 📌 아키텍처 결정 사항: Web Clip 파이프라인
+
+- **기능**: Discord 채널(`web-clip`)에서 ✅ 이모지 리액션 시 위키 지식 베이스(Obsidian)에 자동 저장
+- **파이프라인 구조**: `Sonagi Ops Bot` (이모지 감지) ➔ `n8n` (비즈니스 로직 및 라우팅) ➔ `Ansible Semaphore` (실제 .md 파일 생성 및 Git Push)
+- **결정 사유**: 봇 코드 내부(`messageReactionAdd.ts`)에 Semaphore API 호출을 직접 구현할 수 있으나, 향후 LLM 요약 추가, 노션 동시 저장 등 파이프라인 확장성을 고려하여 **n8n을 오케스트레이터로 유지**하기로 결정함.

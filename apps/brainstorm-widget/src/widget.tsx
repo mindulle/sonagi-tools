@@ -6,12 +6,15 @@ const WidgetText = widget.Text;
 const CLI_PROXY_API = "https://llm.lab.sonagi.space/v1/chat/completions";
 
 const ICON_SPARKLES = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L12.168 8.5H19L13.416 12.5L15.584 19L10 15L4.416 19L6.584 12.5L1 8.5H7.832L10 2Z" fill="#3B82F6"/></svg>';
+const ICON_CHECKED = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" rx="4" fill="#3B82F6"/><path d="M4.5 8L7 10.5L11.5 5.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_UNCHECKED = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="14" rx="3" stroke="#D1D5DB" stroke-width="2" fill="white"/></svg>';
 
 function BrainstormWidget() {
   const widgetId = useWidgetId();
   const [prompt, setPrompt] = useSyncedState("prompt", "");
   const [response, setResponse] = useSyncedState("response", "");
   const [loading, setLoading] = useSyncedState("loading", false);
+  const [useRAG, setUseRAG] = useSyncedState("useRAG", false);
 
   const handleGenerate = async () => {
     if (!prompt.trim() || loading) return;
@@ -19,17 +22,30 @@ function BrainstormWidget() {
     setLoading(true);
     setResponse(""); // clear previous
 
+    let systemContent = "You are a UI/UX brainstorming assistant. Provide concise, creative ideas as bullet points. Do not use markdown headers, just plain text bullets.";
+
     try {
+      if (useRAG) {
+        const ragRes = await fetch("http://127.0.0.1:13888/v0/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: prompt })
+        });
+        if (ragRes.ok) {
+          const ragData = await ragRes.json();
+          if (ragData.context && ragData.context.trim()) {
+            systemContent += "\n\n[사내 위키 검색 결과]\n" + ragData.context + "\n[검색 결과 끝]\n위 내용을 우선적으로 참고하여 아이디어를 제안해 주세요.";
+          }
+        }
+      }
+
       const res = await fetch(CLI_PROXY_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "gemini-3.7-flash-high", // Available model in CLIproxyAPI
           messages: [
-            { 
-              role: "system", 
-              content: "You are a UI/UX brainstorming assistant. Provide concise, creative ideas as bullet points. Do not use markdown headers, just plain text bullets." 
-            },
+            { role: "system", content: systemContent },
             { role: "user", content: prompt }
           ]
         })
@@ -102,6 +118,18 @@ function BrainstormWidget() {
       
       {/* 2-Layer Hierarchy: Outer wrapper -> Input layer */}
       <AutoLayout direction="vertical" spacing={12} width="fill-parent">
+        <AutoLayout
+          direction="horizontal"
+          spacing={8}
+          verticalAlignItems="center"
+          onClick={() => setUseRAG(!useRAG)}
+        >
+          <SVG src={useRAG ? ICON_CHECKED : ICON_UNCHECKED} />
+          <WidgetText fontSize={14} fill="#4B5563">
+            사내 위키(Vault) 데이터 기반 검색 연동
+          </WidgetText>
+        </AutoLayout>
+
         <AutoLayout
           fill="#F9FAFB"
           stroke="#D1D5DB"
