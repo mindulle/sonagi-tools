@@ -1,6 +1,6 @@
 figma.showUI(__html__, { width: 400, height: 300, themeColors: true });
 
-figma.ui.onmessage = async (msg) => {
+figma.ui.onmessage = (msg) => {
   if (msg.type === 'create-rectangles') {
     const nodes: SceneNode[] = [];
     for (let i = 0; i < msg.count; i++) {

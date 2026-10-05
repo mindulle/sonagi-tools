@@ -16,7 +16,7 @@ export default class SonagiPlugin extends Plugin {
         console.log("Loading Sonagi Plugin");
 
 		// Ribbon icon in the left sidebar
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sonagi Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('dice', 'Sonagi Plugin', (_evt: MouseEvent) => {
 			new Notice('Hello from Sonagi Tools!');
 		});
 		ribbonIconEl.addClass('sonagi-plugin-ribbon-class');
