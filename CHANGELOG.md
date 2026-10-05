@@ -1,5 +1,73 @@
 # Changelog
 
+## [1.10.0](https://github.com/mindulle/sonagi-tools/compare/v1.9.0...v1.10.0) (2026-10-05)
+
+
+### Features
+
+* [CEO-1075] Jupyter Notebook (.ipynb) 네이티브 렌더링 지원 ([e9feffe](https://github.com/mindulle/sonagi-tools/commit/e9feffe8dcb8430607ca5bb1b0600b5c728d8dae))
+* [CEO-1156] Figma Plugin SVG 자산 자동 추출 파이프라인 ([eade230](https://github.com/mindulle/sonagi-tools/commit/eade23099bb2a4b10ef2ce1dc1a5446c4b551bdb))
+* [CEO-1161] Figma Plugin Mock AI 기능 실제 API로 마이그레이션 ([36c0664](https://github.com/mindulle/sonagi-tools/commit/36c0664debd14203ca9ec8f7750992fac984b801))
+* [CEO-1163] 옵시디언 및 웹 통합 플레이그라운드 렌더러 개발 ([3525537](https://github.com/mindulle/sonagi-tools/commit/35255370b42c9e12d9fccfb11e24ce747a881f40))
+* add tailored help commands for all bots ([a4dd60a](https://github.com/mindulle/sonagi-tools/commit/a4dd60ade7f93b3e951ab3ef072b419750fc05c2))
+* add tailored help commands for ops and media bots, update dev help ([c5de90c](https://github.com/mindulle/sonagi-tools/commit/c5de90c55052910e0ac7eeb3a349d6f3d845a87c))
+* auto-deploy guild commands on ready event ([#98](https://github.com/mindulle/sonagi-tools/issues/98)) ([e930b25](https://github.com/mindulle/sonagi-tools/commit/e930b2571e2e7184d6ebd1d41b4d45c759d23f06))
+* **brainstorm-widget:** 사내 위키(RAG) 검색 연동 토글 및 통신 로직 추가 (#CEO-1160) ([e70783b](https://github.com/mindulle/sonagi-tools/commit/e70783bf32b263b845656512525c3bb82e293ecd))
+* **brainstorm-widget:** 사내 위키(RAG) 검색 연동 토글 및 통신 로직 추가 (#CEO-1160) ([2351e21](https://github.com/mindulle/sonagi-tools/commit/2351e21426806c06b06c53d456ec6d8f4e6cc603))
+* **dev-bot:** `/play sandbox` 자동완성 및 JupyterLite 노트북 지원 추가 ([9c866b6](https://github.com/mindulle/sonagi-tools/commit/9c866b61f9472e99f6f14949cbd0c9ecaff45246))
+* **dev-bot:** add /play project command with Sandbox API integration and preview URL button ([ac47d96](https://github.com/mindulle/sonagi-tools/commit/ac47d96a089d46b4948271da71c37e2f584c3faa))
+* **dev-bot:** add autocomplete for playgrounds path and support JupyterLite notebooks ([935cd2d](https://github.com/mindulle/sonagi-tools/commit/935cd2dfbe30e5a286c64346f718b07edd0b1d16))
+* enhance widget UI and add Extract to Sticky feature ([3815fd8](https://github.com/mindulle/sonagi-tools/commit/3815fd8d8dad3a5e54f7de412be44434d3dd1356))
+* **figma-plugin:** add AI Copilot tab and selection-aware messaging ([11f47c4](https://github.com/mindulle/sonagi-tools/commit/11f47c44836317bdad52d36e03866cd4b6665a16))
+* **figma-plugin:** add Karakeep references tab ([2ab9bc4](https://github.com/mindulle/sonagi-tools/commit/2ab9bc4122ee04b78114583fa8504d2ec27444ce))
+* **figma-plugin:** add SVG auto-extraction pipeline (CEO-1156) ([cd9e922](https://github.com/mindulle/sonagi-tools/commit/cd9e92267a08132f5fb96905ecf46e56623c9149))
+* **figma-plugin:** add Tokens tab for GitHub variable sync (CEO-1155) ([0ac082f](https://github.com/mindulle/sonagi-tools/commit/0ac082f3b7a76fefdd9f78cd4eea0d1ed8818c7f))
+* **figma-plugin:** implement bidirectional variable import logic (CEO-1155) ([63318a7](https://github.com/mindulle/sonagi-tools/commit/63318a778606712394d5867a6a44bfea55c68c9b))
+* **figma-plugin:** integrate actual sonagi-assets API and support SVG insertion ([8d1d435](https://github.com/mindulle/sonagi-tools/commit/8d1d435e0dba667581681f7f897237a19a3a48fc))
+* **figma-plugin:** migrate mock AI calls to real CLIproxyAPI ([26fd1f6](https://github.com/mindulle/sonagi-tools/commit/26fd1f6e0989d1d0c95b4e8082f7aa0c1257dffb))
+* **jupyter:** add SonagiJupyterPlayground core component ([2bd331f](https://github.com/mindulle/sonagi-tools/commit/2bd331f8216897104b64dd9210085c7046ace251))
+* ops-bot internal scheduler and actionable snooze alerts ([157848d](https://github.com/mindulle/sonagi-tools/commit/157848dc9cab55c6482201090394ab1a1a66cd5d))
+* **ops-bot:** add /infra slash command ([254aa3e](https://github.com/mindulle/sonagi-tools/commit/254aa3e9b49ae2ca204881980365b8b1004c49eb))
+* **ops-bot:** add /infra slash command to display discord webhook mappings ([22efed0](https://github.com/mindulle/sonagi-tools/commit/22efed0168cb7045425bebd30e6c3675f7e873fb))
+* **ops-bot:** add emoji trigger bot for design-clip channel ([53bcc40](https://github.com/mindulle/sonagi-tools/commit/53bcc40df3c8d77e34a00772927c1b303d0a0f86))
+* **ops-bot:** automate web clip logic and remove manual reaction trigger ([ec51fe9](https://github.com/mindulle/sonagi-tools/commit/ec51fe940feed448c28a5a949e56bd6b64b18282))
+* **ops-bot:** integrate internal scheduler and actionable snooze alerts ([5a15fea](https://github.com/mindulle/sonagi-tools/commit/5a15fea6d4d243cb09bd7c691d3fbe905047eeae))
+* **ops-bot:** send image data to gallery server on design clip curation ([2cb5fd1](https://github.com/mindulle/sonagi-tools/commit/2cb5fd18e4fa689ff6873cf6a06d3c670fb082ee))
+* **playground:** implement CEO-1163 core rendering engine and wrappers ([f068093](https://github.com/mindulle/sonagi-tools/commit/f068093582acf96275d16bc5f9d651b31cd41502))
+* point brainstorm widget to new internal LLM proxy domain (llm.lab.sonagi.space) ([1386e78](https://github.com/mindulle/sonagi-tools/commit/1386e787c9575885d6aa1a976bff0d0c0c3996b6))
+* scaffold FigJam brainstorm widget with CLIproxyAPI ([7bdc5cd](https://github.com/mindulle/sonagi-tools/commit/7bdc5cd9b3dbfc9a7d257db3d795ea959f21d1e1))
+* send image to gallery server on design curation ([fad8d2b](https://github.com/mindulle/sonagi-tools/commit/fad8d2b40784f13a5303346534a2ecd1ce00974a))
+
+
+### Bug Fixes
+
+* change LLM model to gemini-3.7-flash-high to match CLIproxyAPI capabilities ([380cc58](https://github.com/mindulle/sonagi-tools/commit/380cc5830cbfe27b9187e5ded48dfb538f88d145))
+* **dev-bot:** strip 'examples/' prefix from paths to match Playgrounds API and JupyterLite structure ([34427c1](https://github.com/mindulle/sonagi-tools/commit/34427c1d5176809033b96b0f91244b35d3adecad))
+* **dev-bot:** 자동완성 경로에서 `examples/` 접두사 제거 ([0b3722a](https://github.com/mindulle/sonagi-tools/commit/0b3722a8c679867c52ee372c762961c4013c8a47))
+* **figma-plugin:** add reasoning field to networkAccess in manifest ([5311403](https://github.com/mindulle/sonagi-tools/commit/53114037c14edd59073a13245365623014262dff))
+* **figma-plugin:** allow network access for images in manifest ([d5dfac3](https://github.com/mindulle/sonagi-tools/commit/d5dfac30f3aa4031e89c2e2e657b885257f5f731))
+* **figma-plugin:** bypass cloudflare cdn block by targeting internal minio via tailscale IP ([c9f9a64](https://github.com/mindulle/sonagi-tools/commit/c9f9a64e0125636b83ea2c5f3ed78cb95326b2ae))
+* **figma-plugin:** fetch reference images via karakeep asset API to bypass CDN blocks ([bde6389](https://github.com/mindulle/sonagi-tools/commit/bde638956054068cd138e46017b5280947a5506c))
+* **figma-plugin:** handle non-hex colors like CSS variables gracefully ([01be249](https://github.com/mindulle/sonagi-tools/commit/01be2495f74d48a8c936c758b64fc7cb4cc1c6f8))
+* **figma-plugin:** move ui.html to root for correct vite build path ([91d57d2](https://github.com/mindulle/sonagi-tools/commit/91d57d2ae7cf870894ceecf2acb991dfc22a2d4c))
+* **figma-plugin:** remove crossOrigin from img tag to fix thumbnails ([eccc204](https://github.com/mindulle/sonagi-tools/commit/eccc2045ad0e346ea9a501737f4aa70e9cbd4168))
+* **figma-plugin:** resolve CORS cache bug on image fetch ([e350ff7](https://github.com/mindulle/sonagi-tools/commit/e350ff7e927d9790d59a67d35e3e3e622cd3f914))
+* **figma-plugin:** resolve Mismatched variable type error in importTokens ([cf7e71c](https://github.com/mindulle/sonagi-tools/commit/cf7e71c73720849c9573910a85980f017db4b1a7))
+* **figma-plugin:** resolve redundant-type-constituents lint error ([140e099](https://github.com/mindulle/sonagi-tools/commit/140e099c1f8e61aad6397b86d052211843e942fb))
+* **figma-plugin:** restore missing handleKeyDown for search input ([5768c92](https://github.com/mindulle/sonagi-tools/commit/5768c924f3dc389c738ee59cdfe0418d667e6afb))
+* **figma-plugin:** use CORS-friendly placeholder images ([54fc747](https://github.com/mindulle/sonagi-tools/commit/54fc7475b2a2047d4e1a977bfba0d2762c130fe6))
+* **jupyter:** handle non-json response when executing cell ([2821aa0](https://github.com/mindulle/sonagi-tools/commit/2821aa09758d5f737ed2d2a1f9bad81185f6a1d7))
+* **lint:** remove unnecessary async in figma plugin boilerplate ([6243e85](https://github.com/mindulle/sonagi-tools/commit/6243e853dcae2d8368eb905b0aa258ef0d3c2ff6))
+* **lint:** resolve typescript-eslint errors blocking CI ([fb767e2](https://github.com/mindulle/sonagi-tools/commit/fb767e2df82d92b13a253e2bd32d040d8cc019b0))
+* load Inter Medium font before assigning text to sticky note ([2ce633b](https://github.com/mindulle/sonagi-tools/commit/2ce633bf3577941dfa60c33bead76e1e0f08e891))
+* **ops-bot:** resolve eslint prefer-const on creator ([e60eca0](https://github.com/mindulle/sonagi-tools/commit/e60eca00ecb9f45e96f5931b4af365b827e73d9c))
+* **ops-bot:** resolve typescript unused variable and prettier format issues ([5e2481f](https://github.com/mindulle/sonagi-tools/commit/5e2481f6c28a4846691c769487a1b0ece3acc5d6))
+* register help commands in ops and media bot entries ([5e26d5e](https://github.com/mindulle/sonagi-tools/commit/5e26d5eb7adbf6923a52664ca03b2dd42f57bb37))
+* register help commands in ops and media bot entries ([8cc9509](https://github.com/mindulle/sonagi-tools/commit/8cc950948d10c567971b9a82c000cf1de7ecfdeb))
+* resolve Figma Widget rendering crash ([ab45070](https://github.com/mindulle/sonagi-tools/commit/ab450700d1fe6a1b31e47ede0390dd31ddcae38e))
+* resolve typescript compilation errors in widget ([57fcc71](https://github.com/mindulle/sonagi-tools/commit/57fcc7126a06784ec445673e9539de9b7ae60cea))
+* **test:** update vitest include paths for new directory structure ([4c24761](https://github.com/mindulle/sonagi-tools/commit/4c24761039139eef8d9c38a2308044561f61cbea))
+
 ## [1.9.0](https://github.com/mindulle/sonagi-bots/compare/v1.8.0...v1.9.0) (2026-08-02)
 
 
