@@ -129,18 +129,18 @@ figma.ui.onmessage = async (msg) => {
     try {
       // Find all components in the current document
       const components = figma.root.findAll((node) => node.type === 'COMPONENT') as ComponentNode[];
-      
+
       const schemaList = components.map((c) => {
         let name = c.name;
         // If it's a variant inside a ComponentSet, prepend the set name
         if (c.parent && c.parent.type === 'COMPONENT_SET') {
           name = `${c.parent.name} (${c.name})`;
         }
-        
+
         return {
           name,
           key: c.key,
-          description: c.description || ''
+          description: c.description || '',
         };
       });
 

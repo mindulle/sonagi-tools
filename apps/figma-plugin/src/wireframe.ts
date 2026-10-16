@@ -1,13 +1,5 @@
 export type WireframeNodeType =
-  | 'SECTION'
-  | 'FRAME'
-  | 'CARD'
-  | 'BUTTON'
-  | 'BADGE'
-  | 'SHAPE'
-  | 'STICKY'
-  | 'TEXT'
-  | 'COMPONENT';
+  'SECTION' | 'FRAME' | 'CARD' | 'BUTTON' | 'BADGE' | 'SHAPE' | 'STICKY' | 'TEXT' | 'COMPONENT';
 
 export type LayoutDirection = 'HORIZONTAL' | 'VERTICAL' | 'NONE';
 export type PrimaryAlign = 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN';
@@ -81,10 +73,10 @@ export const SONAGI_V3_PALETTE: Record<string, { light: string; dark: string }> 
   // Brand
   'brand-primary': { light: '#47211b', dark: '#d2645f' },
   'brand-accent': { light: '#d2645f', dark: '#e5867f' },
-  'rain': { light: '#4A90E2', dark: '#4A90E2' }, // Wild Sonagi rain blue
-  'cyan': { light: '#00ffcc', dark: '#00ffcc' },
-  'dandelion': { light: '#ffd166', dark: '#ffd166' }, // Warm dandelion yellow
-  'ink': { light: '#1e1311', dark: '#0a1128' },
+  rain: { light: '#4A90E2', dark: '#4A90E2' }, // Wild Sonagi rain blue
+  cyan: { light: '#00ffcc', dark: '#00ffcc' },
+  dandelion: { light: '#ffd166', dark: '#ffd166' }, // Warm dandelion yellow
+  ink: { light: '#1e1311', dark: '#0a1128' },
 
   // Background
   'bg-base': { light: '#fcf2f0', dark: '#0d1117' },
@@ -111,7 +103,10 @@ export const SONAGI_V3_PALETTE: Record<string, { light: string; dark: string }> 
 export function hexToRgb(hex: string): RGBColor {
   let cleaned = hex.replace('#', '').trim();
   if (cleaned.length === 3) {
-    cleaned = cleaned.split('').map((c) => c + c).join('');
+    cleaned = cleaned
+      .split('')
+      .map((c) => c + c)
+      .join('');
   }
   if (cleaned.length === 8) {
     cleaned = cleaned.slice(0, 6);
@@ -127,10 +122,7 @@ export function hexToRgb(hex: string): RGBColor {
   };
 }
 
-export function resolveColor(
-  colorStr?: string,
-  theme: 'dark' | 'light' = 'dark'
-): RGBColor {
+export function resolveColor(colorStr?: string, theme: 'dark' | 'light' = 'dark'): RGBColor {
   if (!colorStr) {
     return theme === 'dark' ? { r: 0.1, g: 0.1, b: 0.12 } : { r: 0.95, g: 0.95, b: 0.95 };
   }
@@ -205,7 +197,7 @@ export async function renderWireframe(
 async function createNodeRecursively(
   node: WireframeNode,
   parentTheme: 'dark' | 'light'
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 ): Promise<SceneNode | null> {
   const theme = node.theme || parentTheme;
   const isV3 = node.v3Style !== false;
@@ -651,9 +643,11 @@ function applyStyles(
 ) {
   const customStyle: StyleConfig = {
     borderWidth: config.style?.borderWidth ?? (isV3 ? 2 : 0),
-    borderColor: config.style?.borderColor || (theme === 'dark' ? 'border-default' : 'border-default'),
+    borderColor:
+      config.style?.borderColor || (theme === 'dark' ? 'border-default' : 'border-default'),
     borderRadius: config.style?.borderRadius ?? (isV3 ? 4 : 0),
-    backgroundColor: config.color || config.style?.backgroundColor || (theme === 'dark' ? 'bg-base' : 'bg-base'),
+    backgroundColor:
+      config.color || config.style?.backgroundColor || (theme === 'dark' ? 'bg-base' : 'bg-base'),
     ...config.style,
   };
   applyCustomStyles(node, customStyle, theme);
@@ -755,11 +749,36 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
               layout: { direction: 'HORIZONTAL', spacing: 24, counterAlign: 'CENTER' },
               style: { backgroundColor: 'transparent' },
               children: [
-                { type: 'TEXT', name: 'Link 1', content: 'About', style: { fontSize: 14, textColor: '#8b949e' } },
-                { type: 'TEXT', name: 'Link 2', content: 'Philosophy', style: { fontSize: 14, textColor: '#8b949e' } },
-                { type: 'TEXT', name: 'Link 3', content: 'Bento Lab', style: { fontSize: 14, textColor: '#8b949e' } },
-                { type: 'TEXT', name: 'Link 4', content: 'Showroom', style: { fontSize: 14, textColor: '#8b949e' } },
-                { type: 'TEXT', name: 'Link 5', content: 'Tokens', style: { fontSize: 14, textColor: '#8b949e' } },
+                {
+                  type: 'TEXT',
+                  name: 'Link 1',
+                  content: 'About',
+                  style: { fontSize: 14, textColor: '#8b949e' },
+                },
+                {
+                  type: 'TEXT',
+                  name: 'Link 2',
+                  content: 'Philosophy',
+                  style: { fontSize: 14, textColor: '#8b949e' },
+                },
+                {
+                  type: 'TEXT',
+                  name: 'Link 3',
+                  content: 'Bento Lab',
+                  style: { fontSize: 14, textColor: '#8b949e' },
+                },
+                {
+                  type: 'TEXT',
+                  name: 'Link 4',
+                  content: 'Showroom',
+                  style: { fontSize: 14, textColor: '#8b949e' },
+                },
+                {
+                  type: 'TEXT',
+                  name: 'Link 5',
+                  content: 'Tokens',
+                  style: { fontSize: 14, textColor: '#8b949e' },
+                },
               ],
             },
             // Right CTA
@@ -970,9 +989,24 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                       layout: { direction: 'HORIZONTAL', spacing: 8 },
                       style: { backgroundColor: 'transparent' },
                       children: [
-                        { type: 'BADGE', name: 'Tag 1', content: 'Neo-Brutalism', variant: 'outline' },
-                        { type: 'BADGE', name: 'Tag 2', content: '2px Crisp Border', variant: 'outline' },
-                        { type: 'BADGE', name: 'Tag 3', content: 'High Contrast', variant: 'outline' },
+                        {
+                          type: 'BADGE',
+                          name: 'Tag 1',
+                          content: 'Neo-Brutalism',
+                          variant: 'outline',
+                        },
+                        {
+                          type: 'BADGE',
+                          name: 'Tag 2',
+                          content: '2px Crisp Border',
+                          variant: 'outline',
+                        },
+                        {
+                          type: 'BADGE',
+                          name: 'Tag 3',
+                          content: 'High Contrast',
+                          variant: 'outline',
+                        },
                       ],
                     },
                     {
@@ -1009,9 +1043,24 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                       layout: { direction: 'HORIZONTAL', spacing: 8 },
                       style: { backgroundColor: 'transparent' },
                       children: [
-                        { type: 'BADGE', name: 'Tag 1', content: 'Warm Glow', variant: 'dandelion' },
-                        { type: 'BADGE', name: 'Tag 2', content: 'Micro-Interactions', variant: 'dandelion' },
-                        { type: 'BADGE', name: 'Tag 3', content: 'Precise Spacing', variant: 'dandelion' },
+                        {
+                          type: 'BADGE',
+                          name: 'Tag 1',
+                          content: 'Warm Glow',
+                          variant: 'dandelion',
+                        },
+                        {
+                          type: 'BADGE',
+                          name: 'Tag 2',
+                          content: 'Micro-Interactions',
+                          variant: 'dandelion',
+                        },
+                        {
+                          type: 'BADGE',
+                          name: 'Tag 3',
+                          content: 'Precise Spacing',
+                          variant: 'dandelion',
+                        },
                       ],
                     },
                     {
@@ -1084,10 +1133,31 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                     borderRadius: 4,
                   },
                   children: [
-                    { type: 'BADGE', name: 'Category', content: 'THREE.JS / THEATRE.JS / BLENDER', variant: 'accent' },
-                    { type: 'TEXT', name: 'Title', content: 'Cinematic 3D Motion Lab', style: { fontSize: 24, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Desc', content: 'Three.js 렌더러와 Theatre.js 타임라인 에디터를 결합하여 코드로 제어하는 시네마틱 3D 파이프라인.', style: { fontSize: 14, textColor: '#8b949e' } },
-                    { type: 'BUTTON', name: 'Action', content: 'Playground 실행', variant: 'outline' },
+                    {
+                      type: 'BADGE',
+                      name: 'Category',
+                      content: 'THREE.JS / THEATRE.JS / BLENDER',
+                      variant: 'accent',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Cinematic 3D Motion Lab',
+                      style: { fontSize: 24, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Desc',
+                      content:
+                        'Three.js 렌더러와 Theatre.js 타임라인 에디터를 결합하여 코드로 제어하는 시네마틱 3D 파이프라인.',
+                      style: { fontSize: 14, textColor: '#8b949e' },
+                    },
+                    {
+                      type: 'BUTTON',
+                      name: 'Action',
+                      content: 'Playground 실행',
+                      variant: 'outline',
+                    },
                   ],
                 },
                 // Bento 2: Design System Core (Span 1)
@@ -1103,10 +1173,30 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                     borderRadius: 4,
                   },
                   children: [
-                    { type: 'BADGE', name: 'Category', content: 'DESIGN SYSTEM V3', variant: 'outline' },
-                    { type: 'TEXT', name: 'Title', content: 'Tokens & Primitives', style: { fontSize: 22, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Desc', content: 'W3C 표준 디자인 토큰 컴파일러 및 OKLCH 기반 시맨틱 컬러 시스템.', style: { fontSize: 14, textColor: '#8b949e' } },
-                    { type: 'BUTTON', name: 'Action', content: 'Storybook 열기', variant: 'primary' },
+                    {
+                      type: 'BADGE',
+                      name: 'Category',
+                      content: 'DESIGN SYSTEM V3',
+                      variant: 'outline',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Tokens & Primitives',
+                      style: { fontSize: 22, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Desc',
+                      content: 'W3C 표준 디자인 토큰 컴파일러 및 OKLCH 기반 시맨틱 컬러 시스템.',
+                      style: { fontSize: 14, textColor: '#8b949e' },
+                    },
+                    {
+                      type: 'BUTTON',
+                      name: 'Action',
+                      content: 'Storybook 열기',
+                      variant: 'primary',
+                    },
                   ],
                 },
               ],
@@ -1136,9 +1226,24 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                     borderRadius: 4,
                   },
                   children: [
-                    { type: 'BADGE', name: 'Category', content: 'TLDRAW / MCP ENGINE', variant: 'accent' },
-                    { type: 'TEXT', name: 'Title', content: 'Sonagi Draw Canvas', style: { fontSize: 22, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Desc', content: 'tldraw 기반 커스텀 도형 스키마 및 AI 에이전트 연동 협업 캔버스.', style: { fontSize: 14, textColor: '#8b949e' } },
+                    {
+                      type: 'BADGE',
+                      name: 'Category',
+                      content: 'TLDRAW / MCP ENGINE',
+                      variant: 'accent',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Sonagi Draw Canvas',
+                      style: { fontSize: 22, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Desc',
+                      content: 'tldraw 기반 커스텀 도형 스키마 및 AI 에이전트 연동 협업 캔버스.',
+                      style: { fontSize: 14, textColor: '#8b949e' },
+                    },
                     { type: 'BUTTON', name: 'Action', content: '캔버스 접속', variant: 'outline' },
                   ],
                 },
@@ -1155,10 +1260,31 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                     borderRadius: 4,
                   },
                   children: [
-                    { type: 'BADGE', name: 'Category', content: 'PAPERCLIP / KIMAKI / K3S IAC', variant: 'outline' },
-                    { type: 'TEXT', name: 'Title', content: 'Autonomous Agent Orchestration', style: { fontSize: 24, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Desc', content: 'Paperclip 거버넌스, Discord 웹 클리퍼, K3s 인프라 및 OpenCode 멀티 에이전트 자율 협업 파이프라인.', style: { fontSize: 14, textColor: '#8b949e' } },
-                    { type: 'BUTTON', name: 'Action', content: '아키텍처 문서 보기', variant: 'outline' },
+                    {
+                      type: 'BADGE',
+                      name: 'Category',
+                      content: 'PAPERCLIP / KIMAKI / K3S IAC',
+                      variant: 'outline',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Autonomous Agent Orchestration',
+                      style: { fontSize: 24, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Desc',
+                      content:
+                        'Paperclip 거버넌스, Discord 웹 클리퍼, K3s 인프라 및 OpenCode 멀티 에이전트 자율 협업 파이프라인.',
+                      style: { fontSize: 14, textColor: '#8b949e' },
+                    },
+                    {
+                      type: 'BUTTON',
+                      name: 'Action',
+                      content: '아키텍처 문서 보기',
+                      variant: 'outline',
+                    },
                   ],
                 },
               ],
@@ -1199,9 +1325,19 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
               style: { backgroundColor: 'transparent' },
               children: [
                 { type: 'BADGE', name: 'Filter All', content: 'All (6)', variant: 'accent' },
-                { type: 'BADGE', name: 'Filter DS', content: 'Design System & Ops', variant: 'outline' },
+                {
+                  type: 'BADGE',
+                  name: 'Filter DS',
+                  content: 'Design System & Ops',
+                  variant: 'outline',
+                },
                 { type: 'BADGE', name: 'Filter 3D', content: 'WebGL & Motion', variant: 'outline' },
-                { type: 'BADGE', name: 'Filter AI', content: 'AI & Cloudflare', variant: 'outline' },
+                {
+                  type: 'BADGE',
+                  name: 'Filter AI',
+                  content: 'AI & Cloudflare',
+                  variant: 'outline',
+                },
               ],
             },
             // Projects 3-Column Grid
@@ -1223,12 +1359,37 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                   name: 'Card: Sonagi Design System',
                   geometry: { width: 400, height: 340 },
                   layout: { direction: 'VERTICAL', spacing: 14, padding: 20 },
-                  style: { backgroundColor: '#070a12', borderWidth: 2, borderColor: '#30363d', borderRadius: 4 },
+                  style: {
+                    backgroundColor: '#070a12',
+                    borderWidth: 2,
+                    borderColor: '#30363d',
+                    borderRadius: 4,
+                  },
                   children: [
-                    { type: 'SHAPE', name: 'Preview Box', geometry: { width: 360, height: 160 }, color: '#161b22' },
-                    { type: 'TEXT', name: 'Title', content: 'Sonagi Design System V3', style: { fontSize: 18, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Subtitle', content: '토큰 엔진, 컴포넌트 라이브러리 및 Figma 플러그인 통합 시스템.', style: { fontSize: 13, textColor: '#8b949e' } },
-                    { type: 'BUTTON', name: 'View Project', content: '자세히 보기', variant: 'outline' },
+                    {
+                      type: 'SHAPE',
+                      name: 'Preview Box',
+                      geometry: { width: 360, height: 160 },
+                      color: '#161b22',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Sonagi Design System V3',
+                      style: { fontSize: 18, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Subtitle',
+                      content: '토큰 엔진, 컴포넌트 라이브러리 및 Figma 플러그인 통합 시스템.',
+                      style: { fontSize: 13, textColor: '#8b949e' },
+                    },
+                    {
+                      type: 'BUTTON',
+                      name: 'View Project',
+                      content: '자세히 보기',
+                      variant: 'outline',
+                    },
                   ],
                 },
                 // Project Card 2
@@ -1237,12 +1398,37 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                   name: 'Card: Sonagi Draw',
                   geometry: { width: 400, height: 340 },
                   layout: { direction: 'VERTICAL', spacing: 14, padding: 20 },
-                  style: { backgroundColor: '#070a12', borderWidth: 2, borderColor: '#30363d', borderRadius: 4 },
+                  style: {
+                    backgroundColor: '#070a12',
+                    borderWidth: 2,
+                    borderColor: '#30363d',
+                    borderRadius: 4,
+                  },
                   children: [
-                    { type: 'SHAPE', name: 'Preview Box', geometry: { width: 360, height: 160 }, color: '#161b22' },
-                    { type: 'TEXT', name: 'Title', content: 'Sonagi Draw Collaboration', style: { fontSize: 18, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Subtitle', content: 'Cloudflare DO 기반의 실시간 화이트보드 및 AI 다이어그램 생성기.', style: { fontSize: 13, textColor: '#8b949e' } },
-                    { type: 'BUTTON', name: 'View Project', content: '자세히 보기', variant: 'outline' },
+                    {
+                      type: 'SHAPE',
+                      name: 'Preview Box',
+                      geometry: { width: 360, height: 160 },
+                      color: '#161b22',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Sonagi Draw Collaboration',
+                      style: { fontSize: 18, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Subtitle',
+                      content: 'Cloudflare DO 기반의 실시간 화이트보드 및 AI 다이어그램 생성기.',
+                      style: { fontSize: 13, textColor: '#8b949e' },
+                    },
+                    {
+                      type: 'BUTTON',
+                      name: 'View Project',
+                      content: '자세히 보기',
+                      variant: 'outline',
+                    },
                   ],
                 },
                 // Project Card 3
@@ -1251,12 +1437,37 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
                   name: 'Card: Sonagi Anvil',
                   geometry: { width: 400, height: 340 },
                   layout: { direction: 'VERTICAL', spacing: 14, padding: 20 },
-                  style: { backgroundColor: '#070a12', borderWidth: 2, borderColor: '#30363d', borderRadius: 4 },
+                  style: {
+                    backgroundColor: '#070a12',
+                    borderWidth: 2,
+                    borderColor: '#30363d',
+                    borderRadius: 4,
+                  },
                   children: [
-                    { type: 'SHAPE', name: 'Preview Box', geometry: { width: 360, height: 160 }, color: '#161b22' },
-                    { type: 'TEXT', name: 'Title', content: 'Sonagi Anvil DSA Platform', style: { fontSize: 18, fontWeight: 'Bold', textColor: '#ffffff' } },
-                    { type: 'TEXT', name: 'Subtitle', content: '서버리스 기반의 알고리즘 TDD 훈련 및 인터랙티브 시각화 플랫폼.', style: { fontSize: 13, textColor: '#8b949e' } },
-                    { type: 'BUTTON', name: 'View Project', content: '자세히 보기', variant: 'outline' },
+                    {
+                      type: 'SHAPE',
+                      name: 'Preview Box',
+                      geometry: { width: 360, height: 160 },
+                      color: '#161b22',
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Title',
+                      content: 'Sonagi Anvil DSA Platform',
+                      style: { fontSize: 18, fontWeight: 'Bold', textColor: '#ffffff' },
+                    },
+                    {
+                      type: 'TEXT',
+                      name: 'Subtitle',
+                      content: '서버리스 기반의 알고리즘 TDD 훈련 및 인터랙티브 시각화 플랫폼.',
+                      style: { fontSize: 13, textColor: '#8b949e' },
+                    },
+                    {
+                      type: 'BUTTON',
+                      name: 'View Project',
+                      content: '자세히 보기',
+                      variant: 'outline',
+                    },
                   ],
                 },
               ],
@@ -1295,11 +1506,36 @@ export function getPortfolioLandingWireframe(): WireframeNode[] {
               layout: { direction: 'HORIZONTAL', spacing: 16 },
               style: { backgroundColor: 'transparent' },
               children: [
-                { type: 'SHAPE', name: 'Burgundy 800', geometry: { width: 120, height: 50 }, color: '#47211b' },
-                { type: 'SHAPE', name: 'Rain 500', geometry: { width: 120, height: 50 }, color: '#4A90E2' },
-                { type: 'SHAPE', name: 'Cyan 400', geometry: { width: 120, height: 50 }, color: '#00ffcc' },
-                { type: 'SHAPE', name: 'Dandelion 300', geometry: { width: 120, height: 50 }, color: '#ffd166' },
-                { type: 'SHAPE', name: 'Dark Surface', geometry: { width: 120, height: 50 }, color: '#161b22' },
+                {
+                  type: 'SHAPE',
+                  name: 'Burgundy 800',
+                  geometry: { width: 120, height: 50 },
+                  color: '#47211b',
+                },
+                {
+                  type: 'SHAPE',
+                  name: 'Rain 500',
+                  geometry: { width: 120, height: 50 },
+                  color: '#4A90E2',
+                },
+                {
+                  type: 'SHAPE',
+                  name: 'Cyan 400',
+                  geometry: { width: 120, height: 50 },
+                  color: '#00ffcc',
+                },
+                {
+                  type: 'SHAPE',
+                  name: 'Dandelion 300',
+                  geometry: { width: 120, height: 50 },
+                  color: '#ffd166',
+                },
+                {
+                  type: 'SHAPE',
+                  name: 'Dark Surface',
+                  geometry: { width: 120, height: 50 },
+                  color: '#161b22',
+                },
               ],
             },
           ],

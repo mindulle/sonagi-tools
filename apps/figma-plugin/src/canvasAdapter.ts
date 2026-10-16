@@ -37,7 +37,11 @@ export interface CanvasAdapterOptions {
 /**
  * Resolves semantic color token to hex string
  */
-function resolveColorHex(variant?: string, colorName?: string, theme: 'dark' | 'light' = 'dark'): string {
+function resolveColorHex(
+  variant?: string,
+  colorName?: string,
+  theme: 'dark' | 'light' = 'dark'
+): string {
   if (colorName && colorName.startsWith('#')) return colorName;
   if (colorName && SONAGI_V3_PALETTE[colorName]) {
     return SONAGI_V3_PALETTE[colorName][theme];
@@ -96,7 +100,7 @@ function processNode(
     case 'FRAME': {
       const isTopLevel = width >= 800 || height >= 500;
       const frameType: CanvasShapeType = isTopLevel ? 'wired-browser-frame' : 'wired-container';
-      
+
       width = node.geometry?.width || (isTopLevel ? 1280 : 400);
       height = node.geometry?.height || (isTopLevel ? 800 : 300);
 
@@ -116,9 +120,10 @@ function processNode(
       if (node.children && node.children.length > 0) {
         const direction = node.layout?.direction || 'VERTICAL';
         const spacing = node.layout?.spacing || 24;
-        const padding = typeof node.layout?.padding === 'number'
-          ? node.layout.padding
-          : (node.layout?.padding?.top || 32);
+        const padding =
+          typeof node.layout?.padding === 'number'
+            ? node.layout.padding
+            : node.layout?.padding?.top || 32;
 
         let childX = x + padding;
         let childY = y + padding + (isTopLevel ? 48 : 16); // Title bar offset if browser frame
@@ -225,7 +230,7 @@ function processNode(
           w: width,
           h: height,
           text: node.content || node.name || 'Text Note',
-          noteType: isTitle ? 'Headline' : (node.type === 'STICKY' ? 'Atelier Note' : 'UX Copy'),
+          noteType: isTitle ? 'Headline' : node.type === 'STICKY' ? 'Atelier Note' : 'UX Copy',
         },
       });
       break;

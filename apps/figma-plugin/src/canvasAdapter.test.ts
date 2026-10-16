@@ -91,7 +91,7 @@ describe('Sonagi Design Harness - Canvas Adapter', () => {
     const shapes = wireframeNodesToCanvasShapes(portfolioNodes);
 
     expect(shapes.length).toBeGreaterThan(10);
-    
+
     // Verify no forbidden tldraw standard shapes ('geo', 'text') are generated directly
     const types = shapes.map((s) => s.type);
     expect(types).not.toContain('geo');
