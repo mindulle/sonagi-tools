@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "npm run build:plugin -- --watch & vite",
-    "build": "npm run build:ui && npm run build:plugin",
+    "build": "npm run build:ui && npm run build:plugin && npm run build:console",
     "build:ui": "vite build",
-    "build:plugin": "esbuild src/plugin.ts --bundle --outfile=dist/plugin.js"
+    "build:plugin": "esbuild src/plugin.ts --bundle --outfile=dist/plugin.js",
+    "build:console": "esbuild src/consoleRunner.ts --bundle --outfile=dist/figma-console-portfolio.js"
   },
   "keywords": [],
   "author": "",

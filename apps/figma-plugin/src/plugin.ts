@@ -1,4 +1,5 @@
 import { exportTokens, importTokens } from './tokens';
+import { renderWireframe } from './wireframe';
 
 figma.showUI(__html__, { width: 340, height: 600, themeColors: true });
 
@@ -58,36 +59,11 @@ figma.ui.onmessage = async (msg) => {
       figma.currentPage.selection = [text];
     }
   } else if (msg.type === 'create-wireframe') {
-    // Generate simple wireframe boxes based on AI JSON
-    const layout = msg.layout; // Array of { name, w, h }
-    const nodes: SceneNode[] = [];
-    let currentY = figma.viewport.center.y;
-    const startX = figma.viewport.center.x;
-
-    await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-
-    for (const item of layout) {
-      const frame = figma.createFrame();
-      frame.resize(item.w || 300, item.h || 100);
-      frame.x = startX;
-      frame.y = currentY;
-      frame.fills = [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 } }];
-      frame.strokes = [{ type: 'SOLID', color: { r: 0.6, g: 0.6, b: 0.6 } }];
-
-      const text = figma.createText();
-      text.characters = item.name;
-      text.fontSize = 16;
-      frame.appendChild(text);
-      text.x = (frame.width - text.width) / 2;
-      text.y = (frame.height - text.height) / 2;
-
-      figma.currentPage.appendChild(frame);
-      nodes.push(frame);
-      currentY += frame.height + 20;
+    try {
+      await renderWireframe(msg.layout);
+    } catch (e: any) {
+      figma.ui.postMessage({ type: 'error', message: e.message });
     }
-
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
   } else if (msg.type === 'get-github-config') {
     const config = await figma.clientStorage.getAsync('github-config');
     figma.ui.postMessage({ type: 'github-config-loaded', config });
@@ -146,6 +122,29 @@ figma.ui.onmessage = async (msg) => {
       }
 
       figma.ui.postMessage({ type: 'export-svgs-result', payload: results });
+    } catch (e: any) {
+      figma.ui.postMessage({ type: 'error', message: e.message });
+    }
+  } else if (msg.type === 'extract-component-keys') {
+    try {
+      // Find all components in the current document
+      const components = figma.root.findAll((node) => node.type === 'COMPONENT') as ComponentNode[];
+      
+      const schemaList = components.map((c) => {
+        let name = c.name;
+        // If it's a variant inside a ComponentSet, prepend the set name
+        if (c.parent && c.parent.type === 'COMPONENT_SET') {
+          name = `${c.parent.name} (${c.name})`;
+        }
+        
+        return {
+          name,
+          key: c.key,
+          description: c.description || ''
+        };
+      });
+
+      figma.ui.postMessage({ type: 'extract-component-keys-result', payload: schemaList });
     } catch (e: any) {
       figma.ui.postMessage({ type: 'error', message: e.message });
     }

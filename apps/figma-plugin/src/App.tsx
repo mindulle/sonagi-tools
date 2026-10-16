@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TokensTab } from './components/TokensTab';
 import { IconsTab } from './components/IconsTab';
+import { getPortfolioLandingWireframe } from './wireframe';
 
 const ASSETS_API_URL = 'https://assets.sonagi.space';
 const KARAKEEP_API_URL = 'https://ref.sonagi.space/api/v1';
@@ -67,12 +68,18 @@ function App() {
   const [selectedTexts, setSelectedTexts] = useState<string[]>([]);
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
+  const [componentSchema, setComponentSchema] = useState<any[]>([]);
 
   useEffect(() => {
     window.onmessage = (event) => {
       const msg = event.data.pluginMessage;
-      if (msg && msg.type === 'selection-updated') {
+      if (!msg) return;
+      if (msg.type === 'selection-updated') {
         setSelectedTexts(msg.texts || []);
+      } else if (msg.type === 'extract-component-keys-result') {
+        setComponentSchema(msg.payload || []);
+      } else if (msg.type === 'error') {
+        console.error(msg.message);
       }
     };
   }, []);
@@ -171,8 +178,51 @@ function App() {
       } else if (type === 'summary') {
         systemPrompt = 'You are a summarization assistant. Summarize the user text into 2-3 concise bullet points. Keep it short and use Korean.';
       } else if (type === 'wireframe') {
-        systemPrompt = `You are a UI designer. Generate a JSON array of wireframe boxes based on the user prompt. 
-Format MUST be strictly a JSON array of objects with { "name": string, "w": number, "h": number }. Do not include markdown blocks. Example: [{"name":"Header","w":400,"h":60}]`;
+        systemPrompt = `You are an expert UI/UX designer and wireframe generator for Sonagi Design System V3. 
+Based on the user's prompt (which may contain paths to our Wiki/RAG), generate a detailed wireframe UI represented as a JSON array of WireframeNode objects.
+
+Strictly adhere to this TypeScript interface for the output:
+type WireframeNodeType = 'SECTION' | 'FRAME' | 'CARD' | 'BUTTON' | 'BADGE' | 'SHAPE' | 'STICKY' | 'TEXT' | 'COMPONENT';
+interface WireframeNode {
+  id?: string;
+  type: WireframeNodeType;
+  name: string;
+  content?: string;
+  geometry?: { x?: number; y?: number; width?: number; height?: number; };
+  layout?: {
+    direction?: 'HORIZONTAL' | 'VERTICAL' | 'NONE';
+    spacing?: number;
+    padding?: number | { top?: number; right?: number; bottom?: number; left?: number; horizontal?: number; vertical?: number };
+    primaryAlign?: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN';
+    counterAlign?: 'MIN' | 'CENTER' | 'MAX' | 'BASELINE';
+    horizontalSizing?: 'FIXED' | 'HUG' | 'FILL';
+    verticalSizing?: 'FIXED' | 'HUG' | 'FILL';
+    wrap?: boolean;
+  };
+  style?: {
+    borderWidth?: number; // 2px for Sonagi V3
+    borderColor?: string; // hex or token (e.g. 'border-default', '#4A90E2', '#30363d')
+    borderRadius?: number; // 4px for Sonagi V3 sm
+    backgroundColor?: string; // hex or token (e.g. 'bg-base', 'bg-surface', '#070a12')
+    fontSize?: number;
+    fontWeight?: 'Regular' | 'Medium' | 'SemiBold' | 'Bold';
+    textColor?: string;
+    textAlign?: 'LEFT' | 'CENTER' | 'RIGHT';
+  };
+  v3Style?: boolean; // true enables Sonagi V3 defaults
+  variant?: 'primary' | 'secondary' | 'accent' | 'ghost' | 'outline' | 'dandelion';
+  theme?: 'dark' | 'light';
+  children?: WireframeNode[];
+}
+
+Sonagi V3 Conventions:
+- 2px solid borders, 4px corner radius (Neo-Brutalism & Wild Sonagi)
+- 8px grid spacing (spacing: 8, 16, 24, 32, 48, 64)
+- Brand Colors: Rain (#4A90E2), Cyan (#00ffcc), Dandelion (#ffd166), Burgundy (#47211b), Dark BG (#060911, #090d16)
+- AutoLayout: Use layout.direction ('VERTICAL' | 'HORIZONTAL') with nested children rather than absolute geometry.
+
+Create a realistic layout (e.g., width 1440 for web sections).
+Output ONLY valid JSON array. Do NOT wrap in \`\`\`json markdown blocks.`;
       }
 
       const res = await fetch('https://llm.lab.sonagi.space/v1/chat/completions', {
@@ -297,10 +347,84 @@ Format MUST be strictly a JSON array of objects with { "name": string, "w": numb
               <button 
                 disabled={aiLoading || !aiPrompt.trim()}
                 onClick={() => callRealLLM(aiPrompt, 'wireframe')}
-                className="w-full bg-purple-600 text-white p-2 rounded text-sm font-bold hover:bg-purple-700 disabled:opacity-50"
+                className="w-full bg-purple-600 text-white p-2 rounded text-sm font-bold hover:bg-purple-700 disabled:opacity-50 mb-2"
               >
                 {aiLoading ? 'AI 생성 중...' : '✨ 와이어프레임 자동 생성'}
               </button>
+              <button 
+                onClick={() => {
+                  const portfolioLayout = getPortfolioLandingWireframe();
+                  parent.postMessage({ pluginMessage: { type: 'create-wireframe', layout: portfolioLayout } }, '*');
+                }}
+                className="w-full bg-blue-600 text-white p-2 rounded text-sm font-bold hover:bg-blue-700 mb-2 flex items-center justify-center gap-1"
+              >
+                🚀 [CEO-1000] 포트폴리오 메인 랜딩 와이어프레임 생성
+              </button>
+              <button 
+                onClick={() => {
+                  // POC Mock JSON AST matching WireframeNode interface
+                  const mockAst = [
+                    {
+                      id: "sec-1",
+                      type: "FRAME",
+                      name: "Hero Section",
+                      v3Style: true,
+                      geometry: { width: 1440, height: 600 },
+                      layout: { direction: "VERTICAL", spacing: 24, padding: 64, counterAlign: "CENTER", primaryAlign: "CENTER" },
+                      style: { backgroundColor: "#070a12", borderWidth: 2, borderColor: "#1e2430" },
+                      children: [
+                        {
+                          id: "badge-1",
+                          type: "BADGE",
+                          name: "Tag",
+                          content: "SONAGI DESIGN SYSTEM V3",
+                          variant: "accent"
+                        },
+                        {
+                          id: "text-1",
+                          type: "TEXT",
+                          name: "Title",
+                          content: "Transform your workflow",
+                          style: { fontSize: 48, fontWeight: "Bold", textColor: "#ffffff" }
+                        },
+                        {
+                          id: "btn-1",
+                          type: "BUTTON",
+                          name: "CTA Button",
+                          content: "Get Started",
+                          variant: "accent"
+                        }
+                      ]
+                    }
+                  ];
+                  parent.postMessage({ pluginMessage: { type: 'create-wireframe', layout: mockAst } }, '*');
+                }}
+                className="w-full bg-gray-800 text-white p-2 rounded text-sm font-bold hover:bg-gray-900 mb-2"
+              >
+                🛠️ Sonagi V3 컴포넌트 렌더러 테스트
+              </button>
+
+              <hr className="my-2 border-gray-200" />
+              
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm font-bold text-gray-700">🧩 컴포넌트 도감 추출기</h3>
+              </div>
+              <p className="text-xs text-gray-500 mb-2">
+                현재 파일에 있는 모든 컴포넌트의 Key 값을 스캔하여 JSON 스키마로 추출합니다. 이 값을 복사해서 시스템 프롬프트(Component Schema)에 붙여넣으세요.
+              </p>
+              <button 
+                onClick={() => {
+                  parent.postMessage({ pluginMessage: { type: 'extract-component-keys' } }, '*');
+                }}
+                className="w-full bg-indigo-100 text-indigo-700 border border-indigo-200 p-2 rounded text-sm font-bold hover:bg-indigo-200 mb-2"
+              >
+                📥 현재 파일의 Component Key 추출
+              </button>
+              {componentSchema.length > 0 && (
+                <div className="mt-2 text-xs bg-gray-900 text-green-400 p-2 rounded max-h-32 overflow-y-auto">
+                  <pre>{JSON.stringify(componentSchema, null, 2)}</pre>
+                </div>
+              )}
             </div>
           </div>
         )}
