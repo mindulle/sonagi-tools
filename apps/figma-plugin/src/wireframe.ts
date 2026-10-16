@@ -173,7 +173,9 @@ export async function preloadFonts() {
       // Fallback: Inter Regular should always be loaded
       try {
         await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-      } catch (_) {}
+      } catch (_) {
+        // Ignore fallback font error
+      }
     }
   }
 }
@@ -203,9 +205,11 @@ export async function renderWireframe(
 async function createNodeRecursively(
   node: WireframeNode,
   parentTheme: 'dark' | 'light'
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 ): Promise<SceneNode | null> {
   const theme = node.theme || parentTheme;
   const isV3 = node.v3Style !== false;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let figmaNode: SceneNode | null = null;
 
   switch (node.type) {
@@ -330,7 +334,9 @@ async function createNodeRecursively(
       text.fontSize = node.style?.fontSize || 14;
       try {
         text.fontName = { family: 'Inter', style: 'SemiBold' };
-      } catch (_) {}
+      } catch (_) {
+        // Ignore fallback font error
+      }
       const txtRgb = resolveColor(node.style?.textColor || textColor, theme);
       text.fills = [{ type: 'SOLID', color: txtRgb }];
       frame.appendChild(text);
@@ -386,7 +392,9 @@ async function createNodeRecursively(
       text.fontSize = node.style?.fontSize || 12;
       try {
         text.fontName = { family: 'Inter', style: 'Bold' };
-      } catch (_) {}
+      } catch (_) {
+        // Ignore fallback font error
+      }
       const txtRgb = resolveColor(node.style?.textColor || textColor, theme);
       text.fills = [{ type: 'SOLID', color: txtRgb }];
       frame.appendChild(text);
@@ -407,7 +415,9 @@ async function createNodeRecursively(
       } catch (e) {
         try {
           text.fontName = { family: 'Inter', style: 'Regular' };
-        } catch (_) {}
+        } catch (_) {
+          // Ignore fallback font error
+        }
       }
 
       if (node.style?.textAlign) {
@@ -628,7 +638,9 @@ function applyChildLayoutConstraints(
     if (vSizing && 'layoutSizingVertical' in childNode) {
       (childNode as any).layoutSizingVertical = vSizing;
     }
-  } catch (_) {}
+  } catch (_) {
+    // Ignore layout sizing fallback errors
+  }
 }
 
 function applyStyles(
