@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { TokensTab } from './components/TokensTab';
 import { IconsTab } from './components/IconsTab';
 import { getPortfolioLandingWireframe } from './wireframe';
+import {
+  wireframeNodesToCanvasShapes,
+  canvasShapesToWireframeNodes,
+  pushShapesToSonagiDraw,
+} from './canvasAdapter';
 
 const ASSETS_API_URL = 'https://assets.sonagi.space';
 const KARAKEEP_API_URL = 'https://ref.sonagi.space/api/v1';
@@ -58,7 +63,7 @@ const AuthImage = ({ assetId, alt }: { assetId: string, alt: string }) => {
 };
 
 function App() {
-  const [tab, setTab] = useState<'assets' | 'references' | 'ai' | 'tokens' | 'icons'>('assets');
+  const [tab, setTab] = useState<'assets' | 'references' | 'ai' | 'tokens' | 'icons' | 'canvas'>('assets');
   const [assetItems, setAssetItems] = useState<AssetHubItem[]>([]);
   const [bookmarkItems, setBookmarkItems] = useState<BookmarkItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,6 +74,12 @@ function App() {
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [componentSchema, setComponentSchema] = useState<any[]>([]);
+
+  // Canvas / Draw Harness States
+  const [drawRoomId, setDrawRoomId] = useState('');
+  const [drawStatus, setDrawStatus] = useState('');
+  const [drawInputJson, setDrawInputJson] = useState('');
+  const [drawPushing, setDrawPushing] = useState(false);
 
   useEffect(() => {
     window.onmessage = (event) => {
@@ -305,6 +316,12 @@ Output ONLY valid JSON array. Do NOT wrap in \`\`\`json markdown blocks.`;
         >
           ✨ AI
         </button>
+        <button 
+          className={`pb-2 px-2 text-sm font-semibold transition-colors ${tab === 'canvas' ? 'border-b-2 border-emerald-500 text-emerald-600 flex items-center gap-1' : 'text-gray-500 flex items-center gap-1'}`}
+          onClick={() => { setTab('canvas'); }}
+        >
+          🎨 Draw
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto flex flex-col">
@@ -431,6 +448,107 @@ Output ONLY valid JSON array. Do NOT wrap in \`\`\`json markdown blocks.`;
 
         {tab === 'tokens' && <TokensTab />}
         {tab === 'icons' && <IconsTab />}
+
+        {/* --- DRAW / CANVAS HARNESS TAB --- */}
+        {tab === 'canvas' && (
+          <div className="flex flex-col gap-4">
+            <div className="bg-emerald-50 p-3 rounded border border-emerald-100">
+              <h3 className="text-sm font-bold text-emerald-800 mb-1">소나기 도구군 하네스 (Sonagi Draw)</h3>
+              <p className="text-xs text-emerald-600 leading-relaxed">
+                Figma 와이어프레임(AutoLayout)과 화이트보드 캔버스(sonagi-draw) 사이를 양방향으로 잇는 하네스 브릿지입니다.
+              </p>
+            </div>
+
+            {/* Room ID configuration */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-700">타겟 캔버스 Room ID (선택)</label>
+              <input
+                type="text"
+                placeholder="예: 3e4bc060 (비워둘 시 전체 활성 룸)"
+                value={drawRoomId}
+                onChange={(e) => setDrawRoomId(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded text-xs font-mono"
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2">
+              <button
+                disabled={drawPushing}
+                onClick={async () => {
+                  setDrawPushing(true);
+                  setDrawStatus('📡 sonagi-draw 캔버스로 전송 중...');
+                  try {
+                    const portfolioNodes = getPortfolioLandingWireframe();
+                    const shapes = wireframeNodesToCanvasShapes(portfolioNodes);
+                    const res = await pushShapesToSonagiDraw(shapes, drawRoomId || undefined);
+                    setDrawStatus(res.ok ? `✅ ${res.message} (${shapes.length}개 도형)` : `❌ ${res.message}`);
+                  } catch (e: any) {
+                    setDrawStatus(`❌ 오류: ${e.message}`);
+                  } finally {
+                    setDrawPushing(false);
+                  }
+                }}
+                className="w-full bg-emerald-600 text-white p-2.5 rounded text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 transition-colors shadow-sm"
+              >
+                {drawPushing ? '전송 중...' : '🚀 포트폴리오 랜딩 ➔ Draw 캔버스 전송'}
+              </button>
+
+              <button
+                onClick={() => {
+                  const portfolioNodes = getPortfolioLandingWireframe();
+                  const shapes = wireframeNodesToCanvasShapes(portfolioNodes);
+                  navigator.clipboard.writeText(JSON.stringify(shapes, null, 2));
+                  setDrawStatus(`📋 캔버스 도형 JSON ${shapes.length}개가 클립보드에 복사되었습니다!`);
+                }}
+                className="w-full bg-white border border-gray-300 text-gray-800 p-2 rounded text-xs font-semibold hover:bg-gray-50 transition-colors"
+              >
+                📋 캔버스용 Shape JSON 복사
+              </button>
+            </div>
+
+            <hr className="my-1 border-gray-200" />
+
+            {/* Reverse Import: Draw -> Figma */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-bold text-gray-700">📥 Draw 도형 ➔ Figma AST 변환</h3>
+              <p className="text-xs text-gray-500">
+                sonagi-draw에서 내보낸 Canvas Shape JSON을 아래에 붙여넣으면 Figma 와이어프레임 노드로 역변환하여 캔버스에 렌더링합니다.
+              </p>
+              <textarea
+                rows={4}
+                placeholder='[{"type": "wired-card", "props": {"title": "Sample"}, ...}]'
+                value={drawInputJson}
+                onChange={(e) => setDrawInputJson(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded text-xs font-mono"
+              />
+              <button
+                disabled={!drawInputJson.trim()}
+                onClick={() => {
+                  try {
+                    const parsed = JSON.parse(drawInputJson);
+                    const shapeList = Array.isArray(parsed) ? parsed : (parsed.shapes || [parsed]);
+                    const astNodes = canvasShapesToWireframeNodes(shapeList);
+                    parent.postMessage({ pluginMessage: { type: 'create-wireframe', layout: astNodes } }, '*');
+                    setDrawStatus(`✅ ${astNodes.length}개 노드를 Figma 캔버스에 렌더링했습니다.`);
+                  } catch (e: any) {
+                    setDrawStatus(`❌ JSON 파싱 실패: ${e.message}`);
+                  }
+                }}
+                className="w-full bg-blue-600 text-white p-2 rounded text-xs font-bold hover:bg-blue-700 disabled:opacity-50"
+              >
+                Figma 캔버스에 와이어프레임 렌더링
+              </button>
+            </div>
+
+            {/* Status Toast */}
+            {drawStatus && (
+              <div className="p-2.5 rounded text-xs font-mono bg-gray-900 text-emerald-400 border border-gray-700">
+                {drawStatus}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* --- ASSETS / REFS TAB --- */}
         {(tab === 'assets' || tab === 'references') && (
