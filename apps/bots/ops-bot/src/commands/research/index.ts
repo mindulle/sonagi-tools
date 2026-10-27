@@ -17,15 +17,14 @@ export const researchCommand: Command = {
     .setName('research')
     .setDescription('SearXNG + Jina Reader 파이프라인을 통해 외부 웹 심층 리서치를 수행합니다.')
     .addStringOption((option) =>
-      option
-        .setName('query')
-        .setDescription('리서치할 주제나 질문을 입력하세요')
-        .setRequired(true)
+      option.setName('query').setDescription('리서치할 주제나 질문을 입력하세요').setRequired(true)
     )
     .addBooleanOption((option) =>
       option
         .setName('save_to_inbox')
-        .setDescription('결과를 llm-wiki Inbox(10_Sources/Inbox)에 자동 저장할지 여부 (기본: false)')
+        .setDescription(
+          '결과를 llm-wiki Inbox(10_Sources/Inbox)에 자동 저장할지 여부 (기본: false)'
+        )
         .setRequired(false)
     ),
 
@@ -52,7 +51,8 @@ export const researchCommand: Command = {
       }
 
       // 2. Fetch page markdown via Jina Reader
-      const sourceDetails: { title: string; url: string; snippet: string; fullContent: string }[] = [];
+      const sourceDetails: { title: string; url: string; snippet: string; fullContent: string }[] =
+        [];
       for (const res of topResults) {
         let content = '';
         try {
@@ -79,10 +79,7 @@ export const researchCommand: Command = {
       if (saveToInbox) {
         try {
           const combinedMarkdown = sourceDetails
-            .map(
-              (s) =>
-                `## [${s.title}](${s.url})\n\n${s.fullContent}\n\n---\n`
-            )
+            .map((s) => `## [${s.title}](${s.url})\n\n${s.fullContent}\n\n---\n`)
             .join('\n');
 
           const inboxRes = await axios.post(

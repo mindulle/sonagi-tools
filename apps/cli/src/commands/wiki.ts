@@ -7,8 +7,9 @@ import fs from 'fs';
 const VAULT_ROOT = process.env.VAULT_ROOT || '/home/ubuntu/llm-wiki';
 const SCRIPTS_DIR = '/home/ubuntu/sonagi-playgrounds/scripts';
 
-export const wikiCommand = new Command('wiki')
-  .description('Manage and inspect LLM-Wiki knowledge base');
+export const wikiCommand = new Command('wiki').description(
+  'Manage and inspect LLM-Wiki knowledge base'
+);
 
 wikiCommand
   .command('status')
@@ -17,7 +18,14 @@ wikiCommand
     console.log(chalk.bold.blue('\n📚 Sonagi LLM-Wiki Status\n'));
     console.log(chalk.gray(`Vault Root: ${VAULT_ROOT}`));
 
-    const paraDirs = ['00_System', '01_Projects', '02_Areas', '03_Resources', '04_Archives', '10_Sources'];
+    const paraDirs = [
+      '00_System',
+      '01_Projects',
+      '02_Areas',
+      '03_Resources',
+      '04_Archives',
+      '10_Sources',
+    ];
     console.log(chalk.bold('\n📁 PARA Layer Inventory:'));
     for (const dir of paraDirs) {
       const fullPath = path.join(VAULT_ROOT, dir);
@@ -36,7 +44,9 @@ wikiCommand
           }
         };
         countFiles(fullPath);
-        console.log(`  ${chalk.cyan(dir.padEnd(16))} : ${chalk.yellow(count.toString().padStart(5))} markdown notes`);
+        console.log(
+          `  ${chalk.cyan(dir.padEnd(16))} : ${chalk.yellow(count.toString().padStart(5))} markdown notes`
+        );
       } else {
         console.log(`  ${chalk.gray(dir.padEnd(16))} : ${chalk.red('Not Found')}`);
       }
@@ -81,7 +91,9 @@ inboxSubCommand
     }
     for (const f of files) {
       const stats = fs.statSync(path.join(inboxPath, f));
-      console.log(`  • ${chalk.bold(f)} ${chalk.gray(`(${stats.size} bytes, ${stats.mtime.toLocaleDateString()})`)}`);
+      console.log(
+        `  • ${chalk.bold(f)} ${chalk.gray(`(${stats.size} bytes, ${stats.mtime.toLocaleDateString()})`)}`
+      );
     }
     console.log(chalk.cyan(`\nTotal: ${files.length} item(s)\n`));
   });

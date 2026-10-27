@@ -5,8 +5,9 @@ import axios from 'axios';
 const SEARXNG_URL = process.env.SEARXNG_URL || 'http://100.91.9.83:8080';
 const INBOX_API_URL = process.env.INBOX_API_URL || 'http://100.91.9.83:13888/v0/inbox';
 
-export const researchCommand = new Command('research')
-  .description('Perform deep web research using SearXNG + Jina Reader pipeline');
+export const researchCommand = new Command('research').description(
+  'Perform deep web research using SearXNG + Jina Reader pipeline'
+);
 
 researchCommand
   .argument('<query>', 'Search query or research topic')

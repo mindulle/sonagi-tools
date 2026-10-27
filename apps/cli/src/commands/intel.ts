@@ -4,8 +4,9 @@ import chalk from 'chalk';
 
 const INTEL_DIR = '/home/ubuntu/llm-wiki/00_System/scripts/intelligence_bot';
 
-export const intelCommand = new Command('intel')
-  .description('Orchestrate LangGraph Intelligence Bot');
+export const intelCommand = new Command('intel').description(
+  'Orchestrate LangGraph Intelligence Bot'
+);
 
 intelCommand
   .command('run')
@@ -39,22 +40,31 @@ for event in graph.stream(None, config=config):
 print("\\nLangGraph Workflow Finished Successfully!", flush=True)
 `;
 
-    const child = spawn('/home/ubuntu/.local/bin/uv', [
-      'run',
-      '--with', 'langgraph',
-      '--with', 'langchain-openai',
-      '--with', 'pydantic',
-      'python3',
-      '-c',
-      runnerCode
-    ], {
-      cwd: INTEL_DIR,
-      stdio: 'inherit'
-    });
+    const child = spawn(
+      '/home/ubuntu/.local/bin/uv',
+      [
+        'run',
+        '--with',
+        'langgraph',
+        '--with',
+        'langchain-openai',
+        '--with',
+        'pydantic',
+        'python3',
+        '-c',
+        runnerCode,
+      ],
+      {
+        cwd: INTEL_DIR,
+        stdio: 'inherit',
+      }
+    );
 
     child.on('exit', (code) => {
       if (code === 0) {
-        console.log(chalk.green('\n✅ Market Intelligence successfully gathered and compiled into LLM-Wiki!'));
+        console.log(
+          chalk.green('\n✅ Market Intelligence successfully gathered and compiled into LLM-Wiki!')
+        );
       } else {
         console.log(chalk.red(`\n❌ LangGraph exited with code ${code}`));
       }

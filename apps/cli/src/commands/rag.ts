@@ -8,8 +8,9 @@ import axios from 'axios';
 const SCRIPTS_DIR = '/home/ubuntu/sonagi-playgrounds/scripts';
 const RAG_API_URL = process.env.SONAGI_RAG_URL || 'http://100.91.9.83:13888/v0/search';
 
-export const ragCommand = new Command('rag')
-  .description('Interact with Sonagi FAISS Vector RAG Engine');
+export const ragCommand = new Command('rag').description(
+  'Interact with Sonagi FAISS Vector RAG Engine'
+);
 
 ragCommand
   .command('search <query>')
@@ -20,14 +21,20 @@ ragCommand
     const retrieverPath = path.join(SCRIPTS_DIR, 'wiki_retriever.py');
 
     if (fs.existsSync(retrieverPath) && !options.remote) {
-      const child = spawn('/home/ubuntu/.local/bin/uv', [
-        'run',
-        '--with', 'faiss-cpu',
-        '--with', 'sentence-transformers',
-        'python3',
-        retrieverPath,
-        query
-      ], { stdio: 'inherit' });
+      const child = spawn(
+        '/home/ubuntu/.local/bin/uv',
+        [
+          'run',
+          '--with',
+          'faiss-cpu',
+          '--with',
+          'sentence-transformers',
+          'python3',
+          retrieverPath,
+          query,
+        ],
+        { stdio: 'inherit' }
+      );
 
       child.on('exit', (code) => {
         if (code !== 0) {
@@ -67,15 +74,20 @@ ragCommand
   .description('Rebuild FAISS Vector Index from markdown files')
   .action((options) => {
     const isFull = !!options.full;
-    console.log(chalk.bold.blue(`\n⚡ Rebuilding FAISS Vector Index (${isFull ? 'FULL' : 'CORE'})...\n`));
+    console.log(
+      chalk.bold.blue(`\n⚡ Rebuilding FAISS Vector Index (${isFull ? 'FULL' : 'CORE'})...\n`)
+    );
     const indexerPath = path.join(SCRIPTS_DIR, 'wiki_indexer.py');
     const args = [
       'run',
-      '--with', 'faiss-cpu',
-      '--with', 'sentence-transformers',
-      '--with', 'tqdm',
+      '--with',
+      'faiss-cpu',
+      '--with',
+      'sentence-transformers',
+      '--with',
+      'tqdm',
       'python3',
-      indexerPath
+      indexerPath,
     ];
     if (isFull) {
       args.push('--full');
