@@ -1,0 +1,24 @@
+{
+  "name": "@sonagi/cli",
+  "version": "0.1.0",
+  "description": "Unified CLI Orchestrator for the Sonagi Ecosystem",
+  "main": "dist/index.js",
+  "bin": {
+    "sonagi": "./bin/sonagi.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x bin/sonagi.js",
+    "dev": "tsx src/index.ts",
+    "start": "node bin/sonagi.js"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "chalk": "^4.1.2",
+    "@sonagi-bots/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}

@@ -30,8 +30,12 @@ export const helpCommand: Command = {
             '`/계획` - AI가 제안한 이슈 처리 계획을 확인합니다.',
         },
         {
-          name: '🔄 워크플로우 (n8n)',
-          value: '`/n8n` - n8n 서버 헬스체크 및 워크플로우를 관리합니다.',
+          name: '🔄 워크플로우 & 인프라',
+          value:
+            '`/n8n` - n8n 서버 헬스체크 및 워크플로우를 관리합니다.\n' +
+            '`/infra` - 인프라 맵을 생성하여 디스코드와 n8n 연결을 확인합니다.\n' +
+            '`/rag` - Sonagi FAISS RAG 엔진으로 위키 지식을 벡터 검색합니다.\n' +
+            '`/research` - SearXNG + Jina Reader 파이프라인으로 웹 심층 리서치를 수행합니다.',
         }
       )
       .setFooter({
