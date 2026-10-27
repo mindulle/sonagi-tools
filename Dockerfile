@@ -20,8 +20,9 @@ RUN HUSKY=0 pnpm install --frozen-lockfile
 # Copy full source code
 COPY . .
 
-# Build all workspaces
-RUN pnpm build
+# Build bot workspaces
+RUN pnpm --filter @sonagi-bots/shared build && \
+    pnpm --filter @sonagi-bots/ops-bot --filter @sonagi-bots/dev-bot --filter @sonagi-bots/media-bot build
 
 # Production stage
 FROM node:20-bookworm-slim
