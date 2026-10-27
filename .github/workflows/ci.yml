@@ -46,3 +46,18 @@ jobs:
 
       - name: Run Unit Tests (Vitest)
         run: pnpm run test
+
+      - name: Setup Bun (for E2E runner)
+        if: env.OPS_BOT_TOKEN != ''
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+        env:
+          OPS_BOT_TOKEN: ${{ secrets.OPS_BOT_TOKEN }}
+
+      - name: Run Discord Bot E2E Smoke Test
+        if: env.OPS_BOT_TOKEN != ''
+        env:
+          OPS_BOT_TOKEN: ${{ secrets.OPS_BOT_TOKEN }}
+          DISCORD_TEST_CHANNEL_ID: ${{ secrets.DISCORD_TEST_CHANNEL_ID }}
+        run: pnpm run test:discord:clean
