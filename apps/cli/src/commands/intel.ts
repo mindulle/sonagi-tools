@@ -14,6 +14,7 @@ intelCommand
     console.log(chalk.bold.yellow('\n🤖 Dispatched LangGraph Market Intelligence Workflow...\n'));
     const runnerCode = `
 import sys
+import time
 from graphs.market_intelligence_graph import graph
 
 initial_state = {
@@ -23,7 +24,7 @@ initial_state = {
     "errors": [],
     "status": "init"
 }
-config = {"configurable": {"thread_id": "cli_run_1"}}
+config = {"configurable": {"thread_id": f"cli_run_{int(time.time())}"}}
 
 print("Executing Phase 1: Dispatch -> Collect -> Analyze...", flush=True)
 for event in graph.stream(initial_state, config=config):

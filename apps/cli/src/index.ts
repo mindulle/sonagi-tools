@@ -4,6 +4,7 @@ import { wikiCommand } from './commands/wiki';
 import { ragCommand } from './commands/rag';
 import { intelCommand } from './commands/intel';
 import { infraCommand } from './commands/infra';
+import { researchCommand } from './commands/research';
 
 const program = new Command();
 
@@ -17,5 +18,6 @@ program.addCommand(wikiCommand);
 program.addCommand(ragCommand);
 program.addCommand(intelCommand);
 program.addCommand(infraCommand);
+program.addCommand(researchCommand);
 
 program.parse(process.argv);

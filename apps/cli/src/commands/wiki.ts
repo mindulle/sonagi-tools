@@ -59,3 +59,29 @@ wikiCommand
       }
     });
   });
+
+const inboxSubCommand = wikiCommand
+  .command('inbox')
+  .description('Inspect and manage LLM-Wiki 10_Sources/Inbox');
+
+inboxSubCommand
+  .command('list')
+  .description('List all unorganized notes and web clips in 10_Sources/Inbox')
+  .action(() => {
+    console.log(chalk.bold.yellow('\n📥 LLM-Wiki Inbox Notes (10_Sources/Inbox):\n'));
+    const inboxPath = path.join(VAULT_ROOT, '10_Sources/Inbox');
+    if (!fs.existsSync(inboxPath)) {
+      console.log(chalk.gray('  Inbox folder does not exist.'));
+      return;
+    }
+    const files = fs.readdirSync(inboxPath).filter((f) => f.endsWith('.md'));
+    if (files.length === 0) {
+      console.log(chalk.gray('  No pending clips or inbox notes found.'));
+      return;
+    }
+    for (const f of files) {
+      const stats = fs.statSync(path.join(inboxPath, f));
+      console.log(`  • ${chalk.bold(f)} ${chalk.gray(`(${stats.size} bytes, ${stats.mtime.toLocaleDateString()})`)}`);
+    }
+    console.log(chalk.cyan(`\nTotal: ${files.length} item(s)\n`));
+  });

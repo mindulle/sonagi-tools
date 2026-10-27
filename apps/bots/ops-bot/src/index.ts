@@ -3,7 +3,8 @@ import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import dotenv from 'dotenv';
-dotenv.config({ path: '/home/ubuntu/sonagi-bots/.env' });
+dotenv.config({ path: process.env.ENV_FILE || '/home/ubuntu/sonagi-tools/.env' });
+dotenv.config();
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -49,6 +50,8 @@ import { addTodoContextMenu } from './commands/todo/context-menu';
 import { n8nCommand } from './commands/n8n/index';
 import { infraCommand } from './commands/infra/index';
 import { helpCommand } from './commands/help/index';
+import { ragCommand } from './commands/rag/index';
+import { researchCommand } from './commands/research/index';
 
 async function main() {
   try {
@@ -82,6 +85,8 @@ async function main() {
       [addTodoContextMenu.data.name, addTodoContextMenu],
       [n8nCommand.data.name, n8nCommand],
       [infraCommand.data.name, infraCommand],
+      [ragCommand.data.name, ragCommand],
+      [researchCommand.data.name, researchCommand],
       [helpCommand.data.name, helpCommand],
     ]);
 
