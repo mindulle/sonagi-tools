@@ -23,7 +23,7 @@ export class DashboardService {
       // 1. Gather Infra Data
       const health = await healthService.getSystemStatus().catch((err) => {
         logger.error('Failed to get system status for dashboard', err);
-        return { minio: false, n8n: false, k3s: false, timestamp: new Date() };
+        return { minio: false, n8n: false, runtime: false, timestamp: new Date() };
       });
 
       // 2. Gather Kimaki Routines Data
@@ -60,15 +60,16 @@ export class DashboardService {
       }
 
       // 3. Build Embed
+      const isAllGreen = health.runtime && health.n8n && health.minio;
       const embed = new EmbedBuilder()
         .setTitle('📊 Sonagi Infrastructure & Routine Dashboard')
-        .setColor(health.k3s && health.n8n && health.minio ? Colors.SUCCESS : Colors.WARNING)
+        .setColor(isAllGreen ? Colors.SUCCESS : Colors.WARNING)
         .setTimestamp(health.timestamp)
         .setDescription('실시간 인프라 및 에이전트 정기 루틴 관제 상태입니다.')
         .addFields(
           {
             name: '🖥️ Core Infrastructure',
-            value: `**K3s Cluster**: ${health.k3s ? '🟢 Online' : '🔴 Offline'}\n**MinIO Storage**: ${health.minio ? '🟢 Online' : '🔴 Offline'}`,
+            value: `**Container Runtime**: ${health.runtime ? '🟢 Online' : '🔴 Offline'}\n**MinIO Storage**: ${health.minio ? '🟢 Online' : '🔴 Offline'}`,
             inline: true,
           },
           {
