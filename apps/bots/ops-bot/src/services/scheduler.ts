@@ -4,56 +4,59 @@ import { NotionService } from './notion';
 import { logger } from '@sonagi-bots/shared';
 import axios from 'axios';
 
-// 채널 ID: Web Clip Channel ID나 DASHBOARD_CHANNEL_ID 등 환경변수 활용 (여기선 임시로 지정)
-// 실제 환경변수나 채널 ID에 맞게 수정
-const BRIEFING_CHANNEL_ID = '1519250071764336650'; // Web Clip 채널을 예시로 사용 (사용자 설정 필요)
-const USER_ID = '685516064037404683';
+// 채널 ID: 데일리 브리핑 채널 (기본값: #🧦┆routines - 1337010995599638599)
+const BRIEFING_CHANNEL_ID = process.env.BRIEFING_CHANNEL_ID || '1337010995599638599';
+const USER_ID = process.env.DISCORD_USER_ID || '685516064037404683';
 
 export function initScheduler(client: Client) {
   logger.info('Initializing Scheduler...');
 
-  // 1. 아침 9시 데일리 브리핑
-  cron.schedule('0 9 * * *', async () => {
-    try {
-      logger.info('Running daily briefing scheduler...');
-      const channel = (await client.channels.fetch(BRIEFING_CHANNEL_ID)) as TextChannel;
-      if (!channel) return;
-
-      const schedules = await NotionService.getTodaySchedules();
-      let msTodoResponse;
+  // 1. KST 매일 아침 9시 데일리 브리핑 (#🧦┆routines)
+  cron.schedule(
+    '0 9 * * *',
+    async () => {
       try {
-        msTodoResponse = await axios.get('https://n8n.sonagi.space/webhook/todo-today');
+        logger.info('Running daily briefing scheduler for #routines...');
+        const channel = (await client.channels.fetch(BRIEFING_CHANNEL_ID)) as TextChannel;
+        if (!channel) return;
+
+        const schedules = await NotionService.getTodaySchedules();
+        let msTodoResponse;
+        try {
+          msTodoResponse = await axios.get('https://n8n.sonagi.space/webhook/todo-today');
+        } catch (e) {
+          logger.error('Failed to fetch MS To Do', e);
+        }
+
+        const todos = msTodoResponse?.data?.tasks || [];
+
+        let message = '🌅 **오늘의 통합 일정 브리핑** 🌅\n\n';
+
+        message += '🟦 **[Notion 복잡한 일정/회의]**\n';
+        if (schedules.length > 0) {
+          schedules.forEach((item) => {
+            message += `• ${item.title}\n`;
+          });
+        } else {
+          message += '• 예정된 일정이 없습니다.\n';
+        }
+
+        message += '\n🟩 **[MS To Do 간단한 할 일]**\n';
+        if (todos.length > 0) {
+          todos.forEach((item: any) => {
+            message += `• ${item.title}\n`;
+          });
+        } else {
+          message += '• 예정된 할 일이 없습니다.\n';
+        }
+
+        await channel.send({ content: message });
       } catch (e) {
-        logger.error('Failed to fetch MS To Do', e);
+        logger.error('Daily briefing error:', e);
       }
-
-      const todos = msTodoResponse?.data?.tasks || [];
-
-      let message = '🌅 **오늘의 통합 일정 브리핑** 🌅\n\n';
-
-      message += '🟦 **[Notion 복잡한 일정/회의]**\n';
-      if (schedules.length > 0) {
-        schedules.forEach((item) => {
-          message += `• ${item.title}\n`;
-        });
-      } else {
-        message += '• 예정된 일정이 없습니다.\n';
-      }
-
-      message += '\n🟩 **[MS To Do 간단한 할 일]**\n';
-      if (todos.length > 0) {
-        todos.forEach((item: any) => {
-          message += `• ${item.title}\n`;
-        });
-      } else {
-        message += '• 예정된 할 일이 없습니다.\n';
-      }
-
-      await channel.send({ content: message });
-    } catch (e) {
-      logger.error('Daily briefing error:', e);
-    }
-  });
+    },
+    { timezone: 'Asia/Seoul' }
+  );
 
   // 2. 매 10분 마다 1시간/30분/10분 전 긴급 알림
   cron.schedule('*/10 * * * *', async () => {
