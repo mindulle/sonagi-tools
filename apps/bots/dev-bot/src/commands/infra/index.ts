@@ -48,7 +48,11 @@ export const infraCommand: Command = {
               : '일부 시스템에 장애가 감지되었습니다.'
           )
           .addFields(
-            { name: 'Container Runtime', value: status.runtime ? '🟢 Online' : '🔴 Offline', inline: true },
+            {
+              name: 'Container Runtime',
+              value: status.runtime ? '🟢 Online' : '🔴 Offline',
+              inline: true,
+            },
             {
               name: 'MinIO Storage',
               value: status.minio ? '🟢 Online' : '🔴 Offline',

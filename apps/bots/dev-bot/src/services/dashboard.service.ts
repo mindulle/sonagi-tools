@@ -31,7 +31,7 @@ export class DashboardService {
       try {
         const routinesUrl =
           process.env.ROUTINES_API_URL || 'https://activity.sonagi.space/api/routines';
-        const routinesRes = await axios.get(routinesUrl, { timeout: 3500 });
+        const routinesRes = await axios.get(routinesUrl, { timeout: 8000 });
         if (
           routinesRes.data?.success &&
           Array.isArray(routinesRes.data.routines) &&
@@ -93,9 +93,7 @@ export class DashboardService {
       // 4. Find existing dashboard message or create new
       const messages = await channel.messages.fetch({ limit: 10 });
       const existingMsg = messages.find(
-        (m) =>
-          m.author.id === client.user?.id &&
-          m.embeds[0]?.title?.includes('Dashboard')
+        (m) => m.author.id === client.user?.id && m.embeds[0]?.title?.includes('Dashboard')
       );
 
       if (existingMsg) {

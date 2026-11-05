@@ -86,12 +86,22 @@ ragCommand
     try {
       const pm2Check = spawn('pm2', ['list'], { stdio: 'pipe' });
       let output = '';
-      pm2Check.stdout.on('data', (d) => { output += d.toString(); });
+      pm2Check.stdout.on('data', (d) => {
+        output += d.toString();
+      });
       pm2Check.on('exit', () => {
         const hasDaemon = output.includes('wiki-faiss-daemon');
         const hasServer = output.includes('sonagi_server_para');
-        console.log(chalk.cyan(`• PM2 wiki-faiss-daemon: ${hasDaemon ? chalk.green('RUNNING') : chalk.red('STOPPED')}`));
-        console.log(chalk.cyan(`• PM2 sonagi_server_para: ${hasServer ? chalk.green('RUNNING') : chalk.red('STOPPED')}\n`));
+        console.log(
+          chalk.cyan(
+            `• PM2 wiki-faiss-daemon: ${hasDaemon ? chalk.green('RUNNING') : chalk.red('STOPPED')}`
+          )
+        );
+        console.log(
+          chalk.cyan(
+            `• PM2 sonagi_server_para: ${hasServer ? chalk.green('RUNNING') : chalk.red('STOPPED')}\n`
+          )
+        );
       });
     } catch (e: any) {
       console.log(chalk.gray(`(Could not query PM2: ${e.message})\n`));
