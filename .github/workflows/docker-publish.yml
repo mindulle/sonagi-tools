@@ -74,7 +74,7 @@ jobs:
           MANIFEST_PATH="kubernetes/sonagi-bots/02-deployment.yaml"
 
           # Replace the image line using sed
-          sed -i "s|image: ghcr.io/mindulle/sonagi-\(bots\|tools\):.*|image: ${NEW_IMAGE}|g" $MANIFEST_PATH
+          sed -i "s|image: ghcr.io/mindulle/sonagi-tools:.*|image: ${NEW_IMAGE}|g" $MANIFEST_PATH
 
           # Commit and push
           git config user.name "github-actions[bot]"
