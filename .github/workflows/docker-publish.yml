@@ -74,7 +74,7 @@ jobs:
           MANIFEST_PATH="kubernetes/sonagi-bots/02-deployment.yaml"
 
           # Replace the image line using sed
-          sed -i "s|image: ghcr.io/mindulle/sonagi-bots:.*|image: ${NEW_IMAGE}|g" $MANIFEST_PATH
+          sed -i "s|image: ghcr.io/mindulle/sonagi-\(bots\|tools\):.*|image: ${NEW_IMAGE}|g" $MANIFEST_PATH
 
           # Commit and push
           git config user.name "github-actions[bot]"
@@ -85,7 +85,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "✅ No changes to commit. Image is already up to date."
           else
-            git commit -m "chore(sonagi-bots): auto-update image to sha-${SHORT_SHA} [skip ci]"
+            git commit -m "chore(sonagi-tools): auto-update image to sha-${SHORT_SHA} [skip ci]"
             echo "🚀 Pushing changes to ${INFRA_REPO}..."
             git push origin main
             echo "🎉 Manifest updated successfully! ArgoCD will sync shortly."
