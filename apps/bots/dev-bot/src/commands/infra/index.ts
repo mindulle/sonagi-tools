@@ -37,7 +37,7 @@ export const infraCommand: Command = {
         await interaction.deferReply();
 
         const status = await healthService.getSystemStatus();
-        const isAllHealthy = status.k3s && status.minio && status.n8n;
+        const isAllHealthy = status.runtime && status.minio && status.n8n;
 
         const embed = new EmbedBuilder()
           .setColor(isAllHealthy ? Colors.SUCCESS : Colors.ERROR)
@@ -48,7 +48,11 @@ export const infraCommand: Command = {
               : '일부 시스템에 장애가 감지되었습니다.'
           )
           .addFields(
-            { name: 'K3s Cluster', value: status.k3s ? '🟢 Online' : '🔴 Offline', inline: true },
+            {
+              name: 'Container Runtime',
+              value: status.runtime ? '🟢 Online' : '🔴 Offline',
+              inline: true,
+            },
             {
               name: 'MinIO Storage',
               value: status.minio ? '🟢 Online' : '🔴 Offline',
