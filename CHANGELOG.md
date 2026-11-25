@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.0](https://github.com/mindulle/sonagi-tools/compare/v1.10.0...v1.11.0) (2026-11-25)
+
+
+### Features
+
+* **cli:** add press command delegation ([#130](https://github.com/mindulle/sonagi-tools/issues/130)) ([7c0214e](https://github.com/mindulle/sonagi-tools/commit/7c0214e3b8745b6a337d39459a429a1a9a31549f))
+* **scripts:** add Jina-based Upwork job scanner ([#128](https://github.com/mindulle/sonagi-tools/issues/128)) ([2131ebd](https://github.com/mindulle/sonagi-tools/commit/2131ebdb5cc3c4f0e590b522b0dc704af02b2140))
+
 ## [1.10.0](https://github.com/mindulle/sonagi-tools/compare/v1.9.0...v1.10.0) (2026-11-05)
 
 
